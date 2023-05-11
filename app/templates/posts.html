@@ -1,1 +1,27 @@
 {% extends "base.html" %}
+
+{% block content %}
+
+    <h1>Winstogram!</h1>
+
+    {% for post in posts %}
+
+        <br>
+        <div class="post-container" style="position:relative;left:25%;width: 50%;border-top: solid;padding-top: 10px; border-image: linear-gradient(to right, rgba(0,0,0,0), gray, rgba(0,0,0,0)) 1; text-align:center;">
+            {% if post.image %}
+            <!-- Placed above rest for now, needs to be moved to the side inline, possibly use flex -->
+            <div class="post-image">
+                <img src="{{post.image}}">
+            </div>
+            {% endif %}
+            <div class="post-header">
+                <b>{{post.header}}</b>
+            </div>
+            <div class="post-body">
+                {{post.body}}
+            </div>
+        </div>
+
+    {% endfor %}
+
+{% endblock %}
