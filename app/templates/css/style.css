@@ -1,0 +1,13 @@
+.post-container {
+    position: relative;
+    left: 25%;
+    width: 50%;
+    border-top: solid;
+    padding-top: 10px;
+    border-image: linear-gradient(to right, rgba(0, 0, 0, 0), gray, rgba(0, 0, 0, 0)) 1;
+}
+
+.post-container div {
+    display: flex;
+    text-align: center;
+}
