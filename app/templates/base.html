@@ -1,0 +1,26 @@
+<html>
+
+    <head>
+        {% if title %}
+        <title>{{ title }} - W.I.N.S.T.O.N.</title>
+        {% else %}
+        <title>W.I.N.S.T.O.N. the Robot Dog!</title>
+        {% endif %}
+
+        <link rel="stylesheet" href="./css/style.css"
+    </head>
+
+    <body>
+
+        <div class="navbar">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('stream') }}">Stream</a>
+            <a href="{{ url_for('posts') }}">Winstogram</a>
+            <a href="{{ url_for('about') }}">About us</a>
+        </div>
+
+        {% block content %}{% endblock %}
+
+    </body>
+
+</html>
