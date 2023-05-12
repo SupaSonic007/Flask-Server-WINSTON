@@ -15,28 +15,28 @@ def about():
 def winstogram():
     posts = [
         {
-            'header': 'Epic',
+            'head': 'Epic',
             'body': 'Also epic',
             'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/182px-Python-logo-notext.svg.png'
         },
         {
-            'header': 'Epic 2',
+            'head': 'Epic 2',
             'body': 'Also epic'
         },
         {
-            'header': 'Epic',
+            'head': 'Epic',
             'body': 'Also epic'
         },
         {
-            'header': 'Epic 2',
+            'head': 'Epic 2',
             'body': 'Also epic'
         },
         {
-            'header': 'Epic',
+            'head': 'Epic',
             'body': 'Also epic'
         },
         {
-            'header': 'Epic 2',
+            'head': 'Epic 2',
             'body': 'Also epic'
         },
     ]
