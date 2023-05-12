@@ -15,7 +15,7 @@
     <ul class="flex bg-[var(--secondary)]">
         <li class="">
             <a href="{{ url_for('index') }}"
-                class="p-5 block lg:inline-block text-white {{ 'active' if request.path == url_for('index') else '' }}">Home</a>
+                class="p-5 block lg:inline-block text-white {{ 'active' if request.path in [url_for('index'), '/'] else '' }}">Home</a>
         </li>
         <li class="">
             <a href="{{ url_for('stream') }}"
@@ -32,7 +32,7 @@
     </ul>
 
     <div class="p-10">
-        <br><br>
+        <br>
         {% block content %}{% endblock %}
     </div>
 
