@@ -2,14 +2,35 @@
 
 {% block content %}
 
-    <h1 class="text-5xl">Winstogram!</h1>
+<h1 class="text-5xl">Winstogram!</h1>
 
-    {% for post in posts %}
-        <!-- <div class="post-flex">
-            <div class="post-image"><img src="{{ post.image }}"></div>
-            <div class="post-header"><b>{{ post.head }}</b></div>
-            <div class="post-body">{{ post.body }}</div>
-        </div> -->
-    {% endfor %}
+<br>
+
+<div id="postsContainer" class="mx-24">
+{% for post in posts %}
+    <div id="post" class="rounded-md border-2 mx-10 flex">
+        <table>
+            <tr>
+                {% if post.image %}
+                <td>
+                    <img class="max-h-16 max-w-16 w-max" src="{{ post.image }}">
+                </td>
+                {% endif %}
+                <td class="float-left">
+                    <div>
+                        <div class="text-lg">
+                            <b>{{ post.head }}</b>
+                        </div>
+                        <div class="text-md">
+                            {{ post.body }}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br>
+{% endfor %}
+</div>
 
 {% endblock %}
