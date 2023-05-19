@@ -1,5 +1,6 @@
 from app import app
 from flask import render_template, flash, url_for, request
+from app.forms import LoginForm
 
 @app.route('/')
 @app.route('/index')
@@ -53,3 +54,10 @@ def user(username):
     user = None 
 
     return render_template('user.html', title=f'{username}', user=user)
+
+@app.route('/login')
+def login():
+
+    form = LoginForm()
+
+    return render_template('login.html', title=f'Login', form=form)
