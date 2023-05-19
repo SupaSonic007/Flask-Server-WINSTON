@@ -12,11 +12,6 @@ li:has(a.active) {
     border-right: solid;
 }
 
-#gradient {
-    background-image: linear-gradient(to top, rgba(0,0,0,0) 5%, var(--secondary), rgba(0,0,0,0) 95%) 1;
-    z-index: -1;
-}
-
 :root {
     --primary: #FFFAFF;
     --secondary: #423E3B;

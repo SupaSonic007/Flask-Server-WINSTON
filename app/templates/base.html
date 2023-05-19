@@ -1,36 +1,48 @@
 <html>
-
+<!-- Using Jinja templating so that you can use variables and code through flask's rendering of template -->
 <head>
     {% if title %}
     <title>{{ title }} - W.I.N.S.T.O.N.</title>
     {% else %}
     <title>W.I.N.S.T.O.N. the Robot Dog!</title>
     {% endif %}
-
+    <!-- Link to stylesheets, css and tailwind -->
     <link rel="stylesheet" href="{{ url_for('static',filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static',filename='dist/css/output.css') }}">
+    {% block scripts %}{% endblock %}
 </head>
 
+<!-- Tailwind css setting background colours and flexboxes -->
 <body class="bg-[var(--primary)]">
-    <ul class="flex bg-[var(--secondary)]">
-        <li class="">
-            <a href="{{ url_for('index') }}"
-                class="p-5 block lg:inline-block text-white {{ 'active' if request.path in [url_for('index'), '/'] else '' }}">Home</a>
-        </li>
-        <li class="">
-            <a href="{{ url_for('stream') }}"
-                class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('stream') else '' }}">Stream</a>
-        </li>
-        <li class="">
-            <a href="{{ url_for('winstogram') }}"
-                class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('winstogram') else '' }}">Winstogram</a>
-        </li>
-        <li class="">
-            <a href="{{ url_for('about') }}"
-                class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('about') else '' }}">About</a>
-        </li>
-    </ul>
+    <div class="flex justify-start flex-row bg-[var(--secondary)] w-full">
+        <ul class="w-5/6 flex">
+            <img class="p-2 max-h-16" src="https://sp-ao.shortpixel.ai/client/to_auto,q_lossless,ret_img,w_400/https://alphabetimals.com/wp-content/uploads/W3.png">
+            <li class="">
+                <a href="{{ url_for('index') }}"
+                    class="p-5 block lg:inline-block text-white {{ 'active' if request.path in [url_for('index'), '/'] else '' }}">Home</a>
+            </li>
+            <li class="">
+                <a href="{{ url_for('stream') }}"
+                    class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('stream') else '' }}">Stream</a>
+            </li>
+            <li class="">
+                <a href="{{ url_for('winstogram') }}"
+                    class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('winstogram') else '' }}">Winstogram</a>
+            </li>
+            <li class="">
+                <a href="{{ url_for('about') }}"
+                    class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('about') else '' }}">About</a>
+            </li>
+        </ul>
+        <ul class="w-1/2 text-right">
+            <li>
+                <a href="{{ url_for('login') }}" class="p-5 block lg:inline-block text-white text-right">Login</a>
+            </li>
+        </ul>
+    </div>
 
+
+    <!-- Inset div to hold content, keeping consistent across pages -->
     <div class="p-10">
         <br>
         {% block content %}{% endblock %}
