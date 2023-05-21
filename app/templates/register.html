@@ -1,13 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 class="text-5xl">Sign In</h1>
+    <h1 class="text-5xl">Register</h1>
     <br>
     <form action="" method="post" class="" novalidate>
         {{ form.hidden_tag() }}
         <p>
             {{ form.username.label }}<br>
             {{ form.username(size=32, class_="border border-black rounded") }}
+            {% for error in form.username.errors %}
+                <span class="text-red-500">[{{error}}]</span>
+            {% endfor %}
+        </p>
+        <br>
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=32, class_="border border-black rounded") }}
             {% for error in form.username.errors %}
                 <span class="text-red-500">[{{error}}]</span>
             {% endfor %}
@@ -21,14 +29,15 @@
             {% endfor %}
         </p>
         <br>
-        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+        <p>
+            {{ form.password2.label }}<br>
+            {{ form.password2(size=32, class_="border border-black rounded") }}
+            {% for error in form.password2.errors %}
+                <span class="text-red-500">[{{error}}]</span>
+            {% endfor %}
+        </p>
+        <br>
         <br>
         <p>{{ form.submit(class_="border p-1 border-black rounded bg-[var(--primary)]") }}</p>
-        <br>
-        <p>New User? <a href="{{ url_for('register') }}" class="text-blue-400 underline">Click to Register!</a></p>
-        <p>
-            Forgot Your Password?
-            <a href="#" class="text-blue-400 underline">Click to Reset It</a>
-        </p>
     </form>
 {% endblock %}

@@ -1,6 +1,7 @@
-from app import app
-from flask import render_template, flash, url_for, request
-from app.forms import LoginForm
+from app import app, db
+from flask import render_template, flash, url_for, request, redirect
+from app.forms import LoginForm, RegistrationForm
+from app.models import User, Post
 
 @app.route('/')
 @app.route('/index')
@@ -55,9 +56,23 @@ def user(username):
 
     return render_template('user.html', title=f'{username}', user=user)
 
-@app.route('/login')
+@app.route('/login', methods=["GET", "POST"])
 def login():
 
     form = LoginForm()
 
     return render_template('login.html', title=f'Login', form=form)
+
+@app.route('/register', methods=["GET", "POST"])
+def register():
+
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Success! Congrats on becoming a WinStoner!')
+        return redirect()
+
+    return render_template('register.html', title=f'Register', form=form)
