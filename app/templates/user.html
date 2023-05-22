@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+<img src="{{ user.avatar(128) }}">
+Eyyyy,
+it's {{ user.username }}'s page.
+<br><br>
+<a href="{{ url_for('logout') }}" class="text-blue-400 underline">Logout</a>
 {% endblock %}

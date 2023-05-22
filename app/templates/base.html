@@ -33,17 +33,36 @@
                 <a href="{{ url_for('about') }}"
                     class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('about') else '' }}">About</a>
             </li>
+            {% if current_user.email in app.config["ADMINS"] %}
+            <li class="">
+                <a href="{{ url_for('admin') }}"
+                    class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('about') else '' }}">Admin</a>
+            </li>
+            {% endif %}
         </ul>
         <ul class="w-1/2 text-right">
             <li>
+                {% if current_user.is_active %}
+                <a href="{{ url_for('user', id=current_user.id) }}" class="p-5 block lg:inline-block text-white text-right">{{ current_user.username }}</a>
+                {% else %}
                 <a href="{{ url_for('login') }}" class="p-5 block lg:inline-block text-white text-right">Login</a>
+                {% endif %}
             </li>
         </ul>
     </div>
 
 
     <!-- Inset div to hold content, keeping consistent across pages -->
-    <div class="p-10">
+    <div class="px-10 py-5">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li class="text-3xl">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
         <br>
         {% block content %}{% endblock %}
     </div>
