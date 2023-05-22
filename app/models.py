@@ -1,8 +1,10 @@
 from app import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin, login_manager
+from hashlib import md5
 
-class User(db.Model):
+class User(db.Model, UserMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -21,11 +23,15 @@ class User(db.Model):
 
         return
     
-    def validate_password(self, password):
+    def check_password(self, password):
 
         return check_password_hash(self.password_hashed, password)
     
-class Post(db.Model):
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
+    
+class Post(db.Model, UserMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     imageLocation = db.Column(db.String(64), unique=True)
