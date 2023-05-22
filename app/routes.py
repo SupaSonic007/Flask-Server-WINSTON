@@ -7,7 +7,6 @@ from flask_login import login_user, current_user, login_required, logout_user
 @app.route('/')
 @app.route('/index')
 def index():
-    print(current_user.get_id())
     return render_template('index.html', title='Home', current_user=current_user, app=app)
 
 @app.route('/about')
