@@ -161,3 +161,5 @@ cython_debug/
 
 node_modules
 git-filter-repo.py
+app.db
+config.py

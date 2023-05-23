@@ -7,13 +7,13 @@ from flask_login import LoginManager
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+migrate = Migrate(app, db, render_as_batch=True)
 login = LoginManager(app)
 login.init_app(app)
 login.login_view = 'login'
 login.login_message = 'Please log in to access this page.'
 
-from app import routes, models
+from app import routes, models, errors
 
 @login.user_loader
 def load_user(user):

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, EqualTo, Length, ValidationError, Email
 from app import db
 from app.models import User
@@ -28,5 +28,11 @@ class RegistrationForm(FlaskForm):
         if User.query.filter_by(email=email.data).first():
             raise ValidationError("Email taken")
 
-class LogoutForm(FlaskForm):
-    logout = SubmitField('Logout')
+class PostForm(FlaskForm):
+    subject = StringField("Subject", validators=[DataRequired()])
+    body = TextAreaField("Body", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+class AdminSQLForm(FlaskForm):
+    query = TextAreaField("Query", validators=[DataRequired()])
+    submit = SubmitField("Submit")

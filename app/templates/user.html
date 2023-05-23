@@ -4,6 +4,11 @@
 <img src="{{ user.avatar(128) }}">
 Eyyyy,
 it's {{ user.username }}'s page.
+{% if user.username == "your mum" %}
+<h1 class="text-3xl"><b>I'm keeping an eye on this account. Don't cause havock now.</b></h1>
+{% endif %}
 <br><br>
+{% if user.username == current_user.username %}
 <a href="{{ url_for('logout') }}" class="text-blue-400 underline">Logout</a>
+{% endif %}
 {% endblock %}
