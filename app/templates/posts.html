@@ -2,37 +2,40 @@
 
 <h1 class="text-5xl">Winstogram!</h1>
 
-<br>
+<br />
 
-<table id="postsContainer" class="h-[calc(100%-100px)]">
+<table id="postsContainer" class="h-[calc(70%)]">
   <tr id="" class="">
-    <td id="postsForm" class="w-1/4 h-full border-r-black border-r-2 px-10 align-top">
-      <br><br>
-      <form action="" method="post" class="" novalidate>
+    <td
+      id="postsForm"
+      class="w-1/4 h-full border-r-black border-r-2 px-10 align-top"
+    >
+      <br /><br />
+      <form action="" method="post" autocomplete="off" novalidate>
         {{ form.hidden_tag() }}
         <p>
           {{ form.subject.label }}<br />
-          {{ form.subject(size=64, class_="border border-black rounded") }} {% for
-          error in form.subject.errors %}
+          {{ form.subject(size=64, class_="border border-black rounded") }} {%
+          for error in form.subject.errors %}
           <span class="text-red-500">[{{error}}]</span>
           {% endfor %}
         </p>
-        <br>
+        <br />
         <p>
           {{ form.body.label }}<br />
-          {{ form.body(cols=66, rows=20, class_="border border-black rounded") }} {% for
-          error in form.body.errors %}
+          {{ form.body(cols=66, rows=10, class_="border border-black rounded")
+          }} {% for error in form.body.errors %}
           <span class="text-red-500">[{{error}}]</span>
           {% endfor %}
         </p>
-        <br>
+        <br />
         <p>
           {{ form.submit(class_="border p-1 border-black rounded
           bg-[var(--primary)]") }}
         </p>
       </form>
     </td>
-    <td id="posts" class="min-w-3/4 overflow-y-scroll align-top px-10">
+    <td id="posts" class="max-w-3/4 overflow-y-scroll align-top px-10">
       {% for post in posts %}
       <div id="post" class="rounded-md border-2 border-gray-300 flex">
         <table>
@@ -42,12 +45,18 @@
               <img class="max-h-16 max-w-16 w-max" src="{{ post.image }}" />
             </td>
             {% endif %}
-            <td class="float-left">
-              <div>
+            <td class="">
+              <div class="">
                 <div class="text-lg">
+                  {% autoescape false %}
                   <b>{{ post.header }}</b>
+                  {% endautoescape %}
                 </div>
-                <div class="text-md">{{ post.body }}</div>
+                <div class="text-md" style="overflow-wrap: break-word">
+                  <p>
+                    {% autoescape false %} {{ post.body }} {% endautoescape %}
+                  </p>
+                </div>
               </div>
             </td>
           </tr>
@@ -55,7 +64,6 @@
       </div>
       <br />
       {% endfor %}
-    </div>
     </td>
   </tr>
 </table>

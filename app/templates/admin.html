@@ -1,10 +1,8 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <h1 class="text-5xl">Admin Panel</h1>
-<br>
+<br />
 <div id="sqlQueryContainer" class="px-10">
-<form action="" method="post" class="" novalidate>
+  <form action="" method="post" class="" novalidate>
     {{ form.hidden_tag() }}
     <p>
       {{ form.query.label }}<br />
@@ -13,11 +11,29 @@
       <span class="text-red-500">[{{error}}]</span>
       {% endfor %}
     </p>
-    <br>
+    <br />
     <p>
       {{ form.submit(class_="border p-1 border-black rounded
       bg-[var(--primary)]") }}
     </p>
   </form>
 </div>
+<table class="w-full border-2 border-black">
+  <tr class="">
+    <th class="border-r-2 border-b-2 border-black">Tables</th>
+    <td class="border-b-2 border-black">
+      {% autoescape false %} {{ tableText.upper() }} {% endautoescape %}
+    </td>
+  </tr>
+  {% for table in tables %}
+  <tr class="">
+    <th class="border-r-2 border-b-2 border-black">
+      {{ table }}
+    </th>
+    <td class="border-b-2 border-black">
+      {{ tableModels[table].query.all() }}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
 {% endblock %}

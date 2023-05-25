@@ -1,5 +1,6 @@
 from app import app, db
 from flask import render_template, flash, url_for, request, redirect
+from markupsafe import escape
 from app.forms import LoginForm, RegistrationForm, PostForm, AdminSQLForm
 from app.models import User, Post
 from flask_login import login_user, current_user, logout_user
@@ -39,15 +40,15 @@ def winstogram():
 
     for post in Post.query.paginate(page=page, error_out=False).items:
         posts.append({
-            'header': post.heading,
-            'body': post.body,
+            'header': post.heading.replace(r'/</g', "&lt; ").replace(r'/>/g', "&gt; "),
+            'body': post.body.replace('\n','<br>').replace(r'/</g', "&lt; ").replace(r'/>/g', "&gt; "),
             'author': post.user_id,
-        }) 
+        })
 
     if form.validate_on_submit():
         post = Post(
-            heading = form.subject.data,
-            body = form.body.data.replace('\r',''),
+            heading = form.subject.data.replace(r'/</g', "&lt;").replace(r'/>/g', "&gt;"),
+            body = form.body.data.replace('\r','').replace(r'/</g', "&lt;").replace(r'/>/g', "&gt;"),
             imageLocation = None,
             user_id = current_user.get_id()
         )
@@ -64,7 +65,6 @@ def winstogram():
         form=form,
         page=page
     )
-
 
 @app.route('/stream')
 def stream():
@@ -147,17 +147,35 @@ def logout():
 @app.route('/admin', methods=["POST", "GET"])
 def admin():
     if current_user.email in app.config['ADMINS']:
+        
         sql_form = AdminSQLForm()
+        tables = list(db.metadata.tables.keys())
+
         if sql_form.validate_on_submit():
-            results = db.session.execute(text(sql_form.query.data)).all()
-            results = [tuple(row) for row in results]
-            flash(results)
-            return redirect('admin')
+            sql = sql_form.query.data
+            
+            # Execute SQL Statement, must be converted to SQL text to execute
+            results = db.session.execute(text(sql))
+            # commit if changing any values
+            db.session.commit()
+            
+            # Delete does not return a result
+            if 'delete' in sql.lower():
+                flash(f"Executed: {text(sql)}")
+                return redirect('admin')
+            else:
+                results = [tuple(row) for row in results.all()]
+                flash((results))
+                return redirect('admin')
         return render_template(
             'admin.html',
             title=f"Admin Panel",
             app=app,
-            form=sql_form
+            form=sql_form,
+            db=db,
+            tableText="<br>".join(tables),
+            tables=tables,
+            tableModels={"user":User, "post":Post}
         )
     
     return render_template(
