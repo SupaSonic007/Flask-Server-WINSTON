@@ -14,9 +14,11 @@
 
 <!-- Tailwind css setting background colours and flexboxes -->
 <body class="bg-[var(--primary)]">
-    <div class="flex justify-start flex-row bg-[var(--secondary)] w-full">
+    <div class="flex justify-start flex-row bg-[var(--secondary)] w-full h-16">
         <ul class="w-5/6 flex">
-            <img class="p-2 max-h-16" src="https://sp-ao.shortpixel.ai/client/to_auto,q_lossless,ret_img,w_400/https://alphabetimals.com/wp-content/uploads/W3.png">
+            <a href="{{ url_for('index') }}">
+                <img class="p-2 max-h-16" src="https://sp-ao.shortpixel.ai/client/to_auto,q_lossless,ret_img,w_400/https://alphabetimals.com/wp-content/uploads/W3.png">
+            </a>
             <li class="">
                 <a href="{{ url_for('index') }}"
                     class="p-5 block lg:inline-block text-white {{ 'active' if request.path in [url_for('index'), '/'] else '' }}">Home</a>
@@ -36,7 +38,7 @@
             {% if current_user.email in app.config["ADMINS"] %}
             <li class="">
                 <a href="{{ url_for('admin') }}"
-                    class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('about') else '' }}">Admin</a>
+                    class="p-5 block lg:inline-block text-white  {{ 'active' if request.path == url_for('admin') else '' }}">Admin</a>
             </li>
             {% endif %}
         </ul>
@@ -53,7 +55,7 @@
 
 
     <!-- Inset div to hold content, keeping consistent across pages -->
-    <div class="px-10 py-5">
+    <div class="px-10 py-5 max-h-[calc(100%-64px)]">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul>

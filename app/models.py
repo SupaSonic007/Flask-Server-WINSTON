@@ -9,7 +9,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
-    time_created = db.Column(db.DateTime, default=datetime.utcnow())
+    time_created = db.Column(db.DateTime, default=datetime.now())
     password_hashed = db.Column(db.String(128))
 
     posts = db.relationship('Post', backref='author', lazy='dynamic')
@@ -34,9 +34,9 @@ class User(db.Model, UserMixin):
 class Post(db.Model, UserMixin):
 
     id = db.Column(db.Integer, primary_key=True)
+    heading = db.Column(db.String(128))
+    body = db.Column(db.String(2000))
     imageLocation = db.Column(db.String(64), unique=True)
-    heading = db.Column(db.String(128), unique=True)
-    heading = db.Column(db.String(2000), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
