@@ -1,71 +1,66 @@
 {% extends "base.html" %} {% block content %}
 
-<h1 class="text-5xl">Winstogram!</h1>
+<div
+    class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4 md:h-[calc(100vh-9rem)] sm:p-5"
+>
+{% if current_user.is_active %}
+<div class="col-span-1 bg-green-400 outline p-5 rounded" id="form">
+        <form
+            id="newPostForm"
+            action=""
+            method="post"
+            autocomplete="off"
+            novalidate
+        >
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.subject.label }}<br />
+                {{ form.subject(size=40, class_="border border-black rounded
+                w-full") }} {% for error in form.subject.errors %}
+                <br>
+                <span class="text-black"><b>[{{error}}]</b></span>
+                {% endfor %}
+            </p>
+            <br />
+            <p>
+                {{ form.body.label }}<br />
+                {{ form.body(cols=42, rows=10, class_="border border-black
+                rounded w-full") }} {% for error in form.body.errors %}
+                <br>
+                <span class="text-black"><b>[{{error}}]</b></span>
+                {% endfor %}
+            </p>
+            <br />
+            <p class="text-center md:text-start">
+                {{ form.submit(class_="border p-1 border-black rounded bg-accent
+                w-full md:w-auto") }}
+            </p>
+        </form>
+    </div>
+    {% endif %}
 
-<br />
-
-<table id="postsContainer" class="h-[calc(70%)]">
-  <tr id="" class="">
-    <td
-      id="postsForm"
-      class="w-1/4 h-full border-r-black border-r-2 px-10 align-top"
+    <div
+        class="{{ 'col-span-full' if not current_user.is_active else 'sm:col-span-2 md:col-span-2 lg:col-span-3 xl:col-span-4' }} bg-blue-400 overflow-y-auto outline p-5 rounded"
+        id="postsContainer"
     >
-      <br /><br />
-      <form action="" method="post" autocomplete="off" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-          {{ form.subject.label }}<br />
-          {{ form.subject(size=64, class_="border border-black rounded") }} {%
-          for error in form.subject.errors %}
-          <span class="text-red-500">[{{error}}]</span>
-          {% endfor %}
-        </p>
-        <br />
-        <p>
-          {{ form.body.label }}<br />
-          {{ form.body(cols=66, rows=10, class_="border border-black rounded")
-          }} {% for error in form.body.errors %}
-          <span class="text-red-500">[{{error}}]</span>
-          {% endfor %}
-        </p>
-        <br />
-        <p>
-          {{ form.submit(class_="border p-1 border-black rounded
-          bg-[var(--primary)]") }}
-        </p>
-      </form>
-    </td>
-    <td id="posts" class="max-w-3/4 overflow-y-scroll align-top px-10">
-      {% for post in posts %}
-      <div id="post" class="rounded-md border-2 border-gray-300 flex">
-        <table>
-          <tr>
-            {% if post.image %}
-            <td>
-              <img class="max-h-16 max-w-16 w-max" src="{{ post.image }}" />
-            </td>
-            {% endif %}
-            <td class="">
-              <div class="">
-                <div class="text-lg">
-                  {% autoescape false %}
-                  <b>{{ post.header }}</b>
-                  {% endautoescape %}
+        {% for post in posts[::-1] %}
+        <a href="{{ url_for('winstogram', id=post.id) }}">
+            <div class="outline bg-accent rounded p-5" id="{{ post.id }}">
+                <div id="header truncate">
+                    {% autoescape false %}
+                    <b>{{ post.header }}</b>
+                    <br><i>by {{ post.author }} {{ moment(post.timestamp).fromNow() }}</i>
+                    {% endautoescape %}
                 </div>
-                <div class="text-md" style="overflow-wrap: break-word">
-                  <p>
-                    {% autoescape false %} {{ post.body }} {% endautoescape %}
-                  </p>
+                <div class="px-4 truncate" id="body">
+                    {% autoescape false %} {{ post.body }} {%
+                    endautoescape %}
                 </div>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <br />
-      {% endfor %}
-    </td>
-  </tr>
-</table>
+            </div>
+        </a>
+        <br />
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock %}

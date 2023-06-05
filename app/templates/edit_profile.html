@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block content %}
+
+<h1 class="text-5xl">Edit Profile</h1>
+<br />
+<form action="" method="post" enctype="multipart/form-data" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.username.label }}<br />
+        {{ form.username(class_="mx-auto border border-black rounded") }} {% for
+        error in form.username.errors %}
+        <span class="text-red-500">[{{error}}]</span>
+        {% endfor %}
+    </p>
+    <br />
+    <p>
+        {{ form.bio.label }}<br />
+        {{ form.bio(cols=80, rows=10, class_="mx-auto border border-black
+        rounded") }} {% for error in form.bio.errors %}
+        <span class="text-red-500">[{{error}}]</span>
+        {% endfor %}
+    </p>
+    <br />
+    <p>
+        {{ form.submit(class_="mx-auto border p-1 border-black rounded
+        bg-accent") }}
+    </p>
+</form>
+
+{% endblock %}

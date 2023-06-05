@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="w-full">
+    <div
+        class="lg:w-[60rem] xl:w-[72rem] mx-auto max-h-[calc(100vh-15rem)] sm:max-h-[calc(100vh-9rem)] outline rounded bg-blue-400 p-5 overflow-y-auto"
+        id="postContainer"
+    >
+        <div class="outline rounded bg-accent p-5">
+            <div id="header">
+                <h2 class="text-4xl">
+                    <b>{{ post.header }}</b>
+                    <i class="opacity-50 text-xl" id="saveButtonItalics">
+                        <form action="" method="POST" novalidate>
+                            <input type="submit" name="{{ post.id }}" value="Save">
+                        </form>
+                    </i>
+                </h2>
+            </div>
+            <br />
+            <div class="px-4" id="body">{{ post.body }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

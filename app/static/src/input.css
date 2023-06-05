@@ -2,18 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-li:has(a.active) {
+a .active {
     background-color: #383533;
 }
 
-#postsContainer {
-    border-image: linear-gradient(to top, rgba(0,0,0,0) 5%, var(--secondary), rgba(0,0,0,0) 95%) 1;
-    border-left: solid;
-    border-right: solid;
-}
-
 :root {
-    --primary: #FFFAFF;
+    --primary: #fffaff;
     --secondary: #423E3B;
-    --accent: #8367C7;
+    --accent: #ffffff;
 }

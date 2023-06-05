@@ -1,14 +1,31 @@
-{% extends "base.html" %}
-
-{% block content %}
-<img src="{{ user.avatar(128) }}">
-Eyyyy,
-it's {{ user.username }}'s page.
-{% if user.username == "your mum" %}
-<h1 class="text-3xl"><b>I'm keeping an eye on this account. Don't cause havock now.</b></h1>
-{% endif %}
-<br><br>
-{% if user.username == current_user.username %}
-<a href="{{ url_for('logout') }}" class="text-blue-400 underline">Logout</a>
-{% endif %}
-{% endblock %}
+{% extends "base.html" %} {% block content %}
+<div
+    id="profile"
+    class="grid grid-cols-1 md:grid-cols-3"
+>
+    <img src="{{ user.avatar(128) }}" class="outline" />
+    <h1 class="text-3xl"><b>{{ user.username }}</b>'s page.</h1>
+    {% if user.username == "your mum" %}
+    <h1 class="text-3xl">
+        <b>I'm keeping an eye on this account. Don't cause havoc now.</b>
+    </h1>
+    {% endif %}
+    {% if user.bio %}
+    <div>
+    <h1 class="text-3xl">
+        <b>Bio</b>
+    </h1>
+    <p class="text-2xl">{{ user.bio }}</p>
+    </div>
+    {% else %}
+    <h1 class="text-3xl">
+        <b>No bio yet.</b>
+    </h1>
+    {% endif %}
+    {% if user.username == current_user.username %}
+    <a href="{{ url_for('logout') }}" class="text-blue-400 underline w-min"
+        >Logout</a
+    >
+    <div class="col-start-1">Posts:</div>
+    {% endif %} {% endblock %}
+</div>

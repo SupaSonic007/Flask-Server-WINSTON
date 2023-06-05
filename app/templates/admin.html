@@ -1,39 +1,73 @@
 {% extends "base.html" %} {% block content %}
 <h1 class="text-5xl">Admin Panel</h1>
 <br />
-<div id="sqlQueryContainer" class="px-10">
-  <form action="" method="post" class="" novalidate>
-    {{ form.hidden_tag() }}
-    <p>
-      {{ form.query.label }}<br />
-      {{ form.query(cols=100, rows=10, class_="border border-black rounded") }}
-      {% for error in form.query.errors %}
-      <span class="text-red-500">[{{error}}]</span>
-      {% endfor %}
-    </p>
-    <br />
-    <p>
-      {{ form.submit(class_="border p-1 border-black rounded
-      bg-[var(--primary)]") }}
-    </p>
-  </form>
-</div>
-<table class="w-full border-2 border-black">
-  <tr class="">
-    <th class="border-r-2 border-b-2 border-black">Tables</th>
-    <td class="border-b-2 border-black">
-      {% autoescape false %} {{ tableText.upper() }} {% endautoescape %}
-    </td>
-  </tr>
-  {% for table in tables %}
-  <tr class="">
-    <th class="border-r-2 border-b-2 border-black">
-      {{ table }}
-    </th>
-    <td class="border-b-2 border-black">
-      {{ tableModels[table].query.all() }}
-    </td>
-  </tr>
-  {% endfor %}
-</table>
-{% endblock %}
+
+<!-- CREATE A GRID FOR HOLDING EVERYTHING -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
+    <div id="sqlQueryContainer" class="col-span-1 sm:px-10 sm:col-span-2 md:col-span-4 lg:col-start-1 lg:col-end-4">
+        <form action="" method="post" class="" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.query.label }}<br />
+                {{ form.query(cols=80, rows=10, class_="border border-black
+                rounded w-full") }} {% for error in form.query.errors %}
+                <span class="text-red-500">[{{error}}]</span>
+                {% endfor %}
+            </p>
+            <br />
+            <p>
+                {{ form.submit(class_="border p-1 border-black rounded
+                bg-accent px-5") }}
+            </p>
+        </form>
+    </div>
+    <div id="inspectDBEntryContainer" class="col-span-1 lg:col-start-4 lg:col-end-5 sm:col-span-2 md:col-span-4">
+        {% if inspection['table'] %}
+        <table id="inspectionTable" class="border-2 bg-accent border-black">
+            <tr id="inspectionObject">
+                <!-- inspect entry data -->
+                <td>{{ columns }}</td>
+                <th class="text-left">{{ inspection['selection'] }}</th>
+            </tr>
+            {% for column in inspection['columns'] %}
+            <tr id="{{ column }}" class="border-t-2 border-black">
+                <th>{{ column }}</th>
+                <td>{{ inspection['selection'][column] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+    <br>
+    <table class="w-full border-2 border-black grid-cols-3 sm:col-span-2 md:col-start-1 md:col-span-4 lg:col-span-5 bg-accent">
+        <tr class="">
+            <th class="border-r-2 border-b-2 border-black">Tables</th>
+            <td class="border-b-2 border-black">
+                {% autoescape false %} {{ tableText.upper() }} {% endautoescape
+                    %}
+            </td>
+        </tr>
+        <!-- Display each table w/ entry for small database -->
+        {% for table in tables %}
+        <tr class="">
+            <th class="border-r-2 border-b-2 border-black">{{ table }}</th>
+            <td class="border-b-2 border-black">
+                {% for item in tableModels[table].query.paginate(page=1,
+                per_page=5, error_out=False) %} {% if
+                    table=='collection_for_posts' %}
+                    <a
+                    href="{{ url_for('admin', table=table, collection=item.collection_id, post=item.post_id) }}"
+                    >{{ item }}</a
+                    >
+                    {% else %}
+                    <a href="{{ url_for('admin', table=table, view=item.id) }}"
+                    >{{ item }}</a
+                    >
+                    {% endif %} {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endblock %}
+    
