@@ -2,16 +2,24 @@
 
 <div class="w-full">
     <div
-        class="lg:w-[60rem] xl:w-[72rem] mx-auto max-h-[calc(100vh-15rem)] sm:max-h-[calc(100vh-9rem)] outline rounded bg-blue-400 p-5 overflow-y-auto"
+        class="lg:w-[60rem] xl:w-[72rem] mx-auto outline rounded bg-blue-400 p-5"
         id="postContainer"
     >
         <div class="outline rounded bg-accent p-5">
             <div id="header">
                 <h2 class="text-4xl">
                     <b>{{ post.header }}</b>
+                    <i class="text-2xl">by <a href="{{ url_for('user', id=post.author.id )}}" class="underline">{{ post.author.username }}</a></i>
                     <i class="opacity-50 text-xl" id="saveButtonItalics">
-                        <form action="" method="POST" novalidate>
-                            <input type="submit" name="{{ post.id }}" value="Save">
+                        {% if current_user.is_active %} {% if post not in
+                        current_user.collections[0].post_list %}
+                        <form
+                            action="{{ url_for('save_post', id=post.id) }}"
+                            method="post"
+                            novalidate
+                        >
+                            {{ form.hidden_tag() }} {{ form.save() }} {% endif
+                            %} {% endif %}
                         </form>
                     </i>
                 </h2>

@@ -1,31 +1,119 @@
 {% extends "base.html" %} {% block content %}
 <div
-    id="profile"
-    class="grid grid-cols-1 md:grid-cols-3"
+    class="lg:w-[60rem] xl:w-[72rem] mx-auto outline rounded bg-blue-400 p-5"
+    id="postContainer"
 >
-    <img src="{{ user.avatar(128) }}" class="outline" />
-    <h1 class="text-3xl"><b>{{ user.username }}</b>'s page.</h1>
-    {% if user.username == "your mum" %}
-    <h1 class="text-3xl">
-        <b>I'm keeping an eye on this account. Don't cause havoc now.</b>
-    </h1>
-    {% endif %}
-    {% if user.bio %}
-    <div>
-    <h1 class="text-3xl">
-        <b>Bio</b>
-    </h1>
-    <p class="text-2xl">{{ user.bio }}</p>
+    <div class="outline rounded bg-accent p-5">
+        <div
+            id="profile"
+            class="grid grid-cols-1 p-3 sm:p-0 sm:grid-cols-2 md:grid-cols-3"
+        >
+            <div class="grid grid-cols-2 col-span-2">
+                <img
+                    src="{{ user.avatar(128) }}"
+                    class="mx-auto rounded outline"
+                />
+                <div id="information">
+                    <h2 class="text-3xl text-center">
+                        <b>{{ user.username }}</b>
+                    </h2>
+                    <p>
+                        <br />
+                        {% if user.bio %} {{ user.bio }} {% else %} No bio yet.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <!-- Only 'your mum' can see the message on their own page -->
+            {% if current_user.is_active %} {% if user.username == "your mum"
+            and current_user.username == "your mum" %}
+            <h1 class="text-3xl">
+                <b
+                    >I'm keeping an eye on this account. Don't cause havoc
+                    now.</b
+                >
+            </h1>
+            {% endif %} {% endif %}{% if user.username == current_user.username
+            %}
+            <div
+                class="p-5 h-full align-middle md:border-black md:border-l-2 md:text-right"
+            >
+                <a
+                    href="{{ url_for('edit_profile') }}"
+                    class="text-blue-400 underline w-min md:col-start-3"
+                    >Edit Profile</a
+                >
+                <br />
+                <br />
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="text-blue-400 underline w-min md:col-start-3"
+                    >Logout</a
+                >
+            </div>
+            {% endif %}
+            <br />
+        </div>
     </div>
-    {% else %}
-    <h1 class="text-3xl">
-        <b>No bio yet.</b>
-    </h1>
-    {% endif %}
-    {% if user.username == current_user.username %}
-    <a href="{{ url_for('logout') }}" class="text-blue-400 underline w-min"
-        >Logout</a
-    >
-    <div class="col-start-1">Posts:</div>
-    {% endif %} {% endblock %}
 </div>
+<div
+    id="postsAndCollections"
+    class="grid grid-cols-2 lg:w-[60rem] xl:w-[72rem] mx-auto gap-4"
+>
+    <div
+        id="posts"
+        class="col-start-1 col-span-2 lg:col-span-{{ '1' if current_user.is_active and user.username == current_user.username else '2' }}"
+    >
+        <br />
+        <div
+            class="mx-auto outline rounded bg-green-400 p-3"
+            id="postContainer"
+        >
+            <div class="outline rounded bg-accent p-5">
+                <b class="text-2xl underline"> Posts </b>
+            </div>
+            <br />{% for post in user.posts %}
+            <a href="{{ url_for('winstogram', id=post.id) }}">
+                <div class="outline rounded bg-accent p-5">
+                    <div id="header">
+                        <h2 class="text-2xl truncate">
+                            <b>{{ post.header }}</b>
+                        </h2>
+                        <br />
+                    </div>
+                    <div class="px-4 truncate" id="body">{{ post.body }}</div>
+                </div>
+            </a>
+            <br />
+            {% endfor %}
+        </div>
+    </div>
+    {% if current_user.is_active %} {% if user.username == current_user.username
+    %}
+    <div id="collections" class="col-start-1 col-span-2 lg:col-span-1">
+        <br />
+        <div class="mx-auto outline rounded bg-red-400 p-3" id="saveContainer">
+            <div class="outline rounded bg-accent p-5">
+                <b class="text-2xl underline"> Saved Posts </b>
+            </div>
+            <br />
+            {% for post in user.collections[0].posts %}
+            <a href="{{ url_for('winstogram', id=post.id) }}">
+                <div class="outline rounded bg-accent p-5 truncate">
+                    <div id="header">
+                        <h2 class="text-2xl">
+                            <b>{{ post.header }}</b>
+                        </h2>
+                        <br />
+                    </div>
+                    <div class="px-4 truncate" id="body">{{ post.body }}</div>
+                </div>
+            </a>
+            <br />
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %} {% endif %}
+</div>
+
+{% endblock %}

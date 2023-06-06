@@ -1,11 +1,9 @@
 from app import app, db
 from flask import render_template, flash, url_for, request, redirect
-from app.forms import LoginForm, RegistrationForm, PostForm, AdminSQLForm, EditProfileForm
+from app.forms import LoginForm, RegistrationForm, PostForm, AdminSQLForm, EditProfileForm, SaveForm
 from app.models import User, Post, Collection, CollectionForPosts
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import text
-from flask_moment import Moment
-
 
 @app.route('/')
 @app.route('/index')
@@ -34,8 +32,16 @@ def winstogram(id=None):
     # For pagination, get page number from url (not being provided yet but will be in the future)
     page = request.args.get('page', 1, type=int)
     posts = []
-    form = PostForm()
+    print(current_user.collections[0].post_list)
     if id:
+        form = SaveForm()
+        if form.validate_on_submit():
+            # Save the post
+            saveCollection = current_user.collections.first()
+            saveCollection.posts.append(Post.query.get(id))
+            db.session.commit()
+
+            return redirect(url_for('post', id=id))
         return render_template(
             'post.html',
             title='Post',
@@ -43,7 +49,8 @@ def winstogram(id=None):
             author=User.query.get(Post.query.get(id).user_id),
             current_user=current_user,
             app=app,
-        )    
+            form=form
+        )
     for post in Post.query.paginate(page=page, error_out=False).items:
         # Replace any attempted html injection with escaped characters
         posts.append({
@@ -54,6 +61,7 @@ def winstogram(id=None):
             'timestamp': post.timestamp
         })
 
+    form = PostForm()
     if form.validate_on_submit():
         post = Post(
             # Replace any attempted html injection with escaped characters
@@ -243,7 +251,7 @@ def admin():
 @app.route('/posts/<id>/save', methods=["POST"])
 def save_post(id):
 
-    collections = current_user.collections.all()
+    collections = current_user.collections
     if len(collections) == 0:
         collection = Collection(
             user_id=current_user.id
@@ -251,7 +259,8 @@ def save_post(id):
         db.session.add(collection)
         db.session.commit()
     else:
-        collection = current_user.collections.first()
+        collection = current_user.collections[0]
+
     save_collection = CollectionForPosts(
         collection_id=collection.id,
         post_id=id
@@ -259,7 +268,7 @@ def save_post(id):
 
     db.session.add(save_collection)
     db.session.commit()
-    return (redirect(url_for('post', id=id)))
+    return (redirect(url_for('winstogram', id=id)))
 
 @app.route('/edit_profile', methods=["GET", "POST"])
 def edit_profile():
@@ -269,7 +278,7 @@ def edit_profile():
         current_user.bio = form.bio.data
         db.session.commit()
         flash("Profile updated!")
-        return redirect(url_for('user', id=current_user.id))
+        return redirect(url_for('winstogram', id=current_user.id))
     form.username.data = current_user.username
     form.bio.data = current_user.bio
     return render_template(

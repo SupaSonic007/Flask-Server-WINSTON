@@ -46,7 +46,7 @@
         {% for post in posts[::-1] %}
         <a href="{{ url_for('winstogram', id=post.id) }}">
             <div class="outline bg-accent rounded p-5" id="{{ post.id }}">
-                <div id="header truncate">
+                <div class="truncate" id="header">
                     {% autoescape false %}
                     <b>{{ post.header }}</b>
                     <br><i>by {{ post.author }} {{ moment(post.timestamp).fromNow() }}</i>

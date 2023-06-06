@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_login import current_user
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, EqualTo, Length, ValidationError, Email
 from app import db
@@ -49,6 +50,9 @@ class AdminSQLForm(FlaskForm):
 class EmptyForm(FlaskForm):
     submit = SubmitField("Submit")
 
+class SaveForm(FlaskForm):
+    save = SubmitField("Save")
+
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[
                            DataRequired(), Length(1, 16)])
@@ -56,5 +60,6 @@ class EditProfileForm(FlaskForm):
     submit = SubmitField("Submit")
 
     def validate_username(self, username) -> None:
-        if User.query.filter_by(username=username.data.lower()).first():
+        user = User.query.filter_by(username=username.data.lower()).first()
+        if user and current_user.username != username.data.lower():
             raise ValidationError("Username taken")

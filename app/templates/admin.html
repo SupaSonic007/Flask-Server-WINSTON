@@ -4,7 +4,10 @@
 
 <!-- CREATE A GRID FOR HOLDING EVERYTHING -->
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
-    <div id="sqlQueryContainer" class="col-span-1 sm:px-10 sm:col-span-2 md:col-span-4 lg:col-start-1 lg:col-end-4">
+    <div
+        id="sqlQueryContainer"
+        class="col-span-1 sm:px-10 sm:col-span-2 md:col-span-4 lg:col-start-1 lg:col-end-4"
+    >
         <form action="" method="post" class="" novalidate>
             {{ form.hidden_tag() }}
             <p>
@@ -16,12 +19,15 @@
             </p>
             <br />
             <p>
-                {{ form.submit(class_="border p-1 border-black rounded
-                bg-accent px-5") }}
+                {{ form.submit(class_="border p-1 border-black rounded bg-accent
+                px-5") }}
             </p>
         </form>
     </div>
-    <div id="inspectDBEntryContainer" class="col-span-1 lg:col-start-4 lg:col-end-5 sm:col-span-2 md:col-span-4">
+    <div
+        id="inspectDBEntryContainer"
+        class="col-span-1 lg:col-start-4 lg:col-end-5 sm:col-span-2 md:col-span-4"
+    >
         {% if inspection['table'] %}
         <table id="inspectionTable" class="border-2 bg-accent border-black">
             <tr id="inspectionObject">
@@ -38,13 +44,15 @@
         </table>
         {% endif %}
     </div>
-    <br>
-    <table class="w-full border-2 border-black grid-cols-3 sm:col-span-2 md:col-start-1 md:col-span-4 lg:col-span-5 bg-accent">
+    <br />
+    <table
+        class="w-full border-2 border-black grid-cols-3 sm:col-span-2 md:col-start-1 md:col-span-4 lg:col-span-5 bg-accent"
+    >
         <tr class="">
             <th class="border-r-2 border-b-2 border-black">Tables</th>
             <td class="border-b-2 border-black">
                 {% autoescape false %} {{ tableText.upper() }} {% endautoescape
-                    %}
+                %}
             </td>
         </tr>
         <!-- Display each table w/ entry for small database -->
@@ -54,20 +62,19 @@
             <td class="border-b-2 border-black">
                 {% for item in tableModels[table].query.paginate(page=1,
                 per_page=5, error_out=False) %} {% if
-                    table=='collection_for_posts' %}
-                    <a
+                table=='collection_for_posts' %}
+                <a
                     href="{{ url_for('admin', table=table, collection=item.collection_id, post=item.post_id) }}"
                     >{{ item }}</a
-                    >
-                    {% else %}
-                    <a href="{{ url_for('admin', table=table, view=item.id) }}"
+                >
+                {% else %}
+                <a href="{{ url_for('admin', table=table, view=item.id) }}"
                     >{{ item }}</a
-                    >
-                    {% endif %} {% endfor %}
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    {% endblock %}
-    
+                >
+                {% endif %} {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
