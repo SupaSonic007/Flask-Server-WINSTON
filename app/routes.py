@@ -277,7 +277,7 @@ def edit_profile():
         current_user.bio = form.bio.data
         db.session.commit()
         flash("Profile updated!")
-        return redirect(url_for('winstogram', id=current_user.id))
+        return redirect(url_for('user', id=current_user.id))
     form.username.data = current_user.username
     form.bio.data = current_user.bio
     return render_template(
