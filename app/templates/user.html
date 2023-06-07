@@ -45,11 +45,13 @@
                 >
                 <br />
                 <br />
-                <a
-                    href="{{ url_for('logout') }}"
+                <form method="post" action="{{ url_for('logout') }}" novalidate>
+                    <button
+                    typ="submit"
                     class="text-blue-400 underline w-min md:col-start-3"
-                    >Logout</a
-                >
+                    >Logout</button
+                    >
+                </form>
             </div>
             {% endif %}
             <br />

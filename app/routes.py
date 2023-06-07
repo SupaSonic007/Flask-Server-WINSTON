@@ -32,7 +32,6 @@ def winstogram(id=None):
     # For pagination, get page number from url (not being provided yet but will be in the future)
     page = request.args.get('page', 1, type=int)
     posts = []
-    print(current_user.collections[0].post_list)
     if id:
         form = SaveForm()
         if form.validate_on_submit():
