@@ -1,10 +1,19 @@
 from app import app, db
-from flask import render_template, flash, url_for, request, redirect
+from flask import render_template, flash, url_for, request, redirect, Response
 from app.forms import LoginForm, RegistrationForm, PostForm, AdminSQLForm, EditProfileForm, SaveForm
 from app.models import User, Post, Collection, CollectionForPosts
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import text
 
+import time
+
+
+def gen():
+    while True:
+        with open(f'./app/static/images/stockimg{int(time.time()) % 4}.jpg', 'rb') as image:
+            print("sending image")
+            yield(b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + image.read() + b'\r\n')
 
 @app.route('/')
 @app.route('/index')
@@ -291,3 +300,7 @@ def edit_profile():
         form=form,
         app=app
     )
+
+@app.route('/stream_feed')
+def stream_feed():
+    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')

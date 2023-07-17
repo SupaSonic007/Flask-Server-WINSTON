@@ -13,11 +13,8 @@
     id="postContainer"
 >
     <div class="outline rounded bg-white">
-        <video controls class="h-full w-full">
-            <source
-                src="{{ url_for('static', filename='/videos/flower.webm') }}"
-            />
-        </video>
+        <!-- <img src=""> -->
+        <img src="{{ url_for('stream_feed') }}" />
     </div>
 </div>
 {% endblock %}
