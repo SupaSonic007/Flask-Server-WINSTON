@@ -1,17 +1,23 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block meta %}
+<meta name="title" content="Winstogram" />
+<meta
+    name="description"
+    content="A website centered around a robot dog called W.I.N.S.T.O.N."
+/>
+{% endblock %} {% block content %}
 <h1 class="text-5xl">Winston Stream</h1>
-<br>
-<br>
+<br />
+<br />
 <div
-        class="md:max-w-[40rem] w-full mx-auto outline rounded bg-blue-400 p-5 h-[calc(100vh-25rem)]"
-        id="postContainer"
-    >
-    <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
-        <div class="outline rounded bg-black p-5 h-full ">
-
-        </div>
-    </a>
+    class="md:max-w-[40rem] xl:h-max w-full mx-auto outline rounded bg-main p-5"
+    id="postContainer"
+>
+    <div class="outline rounded bg-white">
+        <video controls class="h-full w-full">
+            <source
+                src="{{ url_for('static', filename='/videos/flower.webm') }}"
+            />
+        </video>
+    </div>
 </div>
 {% endblock %}

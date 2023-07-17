@@ -5,6 +5,7 @@ from app.models import User, Post, Collection, CollectionForPosts
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import text
 
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -24,6 +25,7 @@ def about():
         current_user=current_user,
         app=app
     )
+
 
 @app.route('/posts/<id>', methods=['GET', 'POST'])
 @app.route('/posts', methods=['GET', 'POST'])
@@ -123,12 +125,13 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         # If the user doesn't exist or the password is incorrect it will error
-        user = User.query.filter_by(username=form.username.data.lower()).first()
+        user = User.query.filter_by(
+            username=form.username.data.lower()).first()
 
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('login'))
-        
+
         login_user(user=user, remember=form.remember_me.data)
         flash(f"Welcome back, {user.username}")
         return redirect('/')
@@ -172,6 +175,7 @@ def logout():
     # Log out the user, it will only be POST to
     logout_user()
     return redirect('/')
+
 
 @app.route('/admin', methods=["POST", "GET"])
 @login_required
@@ -243,7 +247,7 @@ def admin():
         'errors/404.html',
         title='Page not found!',
         app=app
-    )
+    ), 404
 
 
 @app.route('/post/<id>/save', methods=["POST"])
@@ -268,6 +272,7 @@ def save_post(id):
     db.session.add(save_collection)
     db.session.commit()
     return (redirect(url_for('winstogram', id=id)))
+
 
 @app.route('/edit_profile', methods=["GET", "POST"])
 def edit_profile():

@@ -2,12 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-a .active {
-    background-color: #383533;
-}
-
 :root {
     --primary: #fffaff;
     --secondary: #423E3B;
     --accent: #ffffff;
+}
+
+html {
+    height:100%;
+}
+
+/* body {
+    height:100%;
+    display:grid;
+    grid-template-columns: 2fr 2fr 5fr 2fr 2fr;
+    grid-template-rows: 1fr 10fr;
+    grid-template-areas: 
+    ". n n n ."
+    ". s m r .";
+} */
+
+body sidebar {
+    display: block;
 }

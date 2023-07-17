@@ -9,6 +9,12 @@ module.exports = {
         primary:'#fffaff',
         secondary: '#423E3B',
         accent: '#ffffff',
+        main: '#ffffff',
+        main2: '#ffffff',
+        main3: '#ffffff',
+        // primary:'#fffaff',
+        // secondary: '#423E3B',
+        // accent: '#ffffff',
       }
     },
     },

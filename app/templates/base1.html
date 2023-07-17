@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- Using Jinja templating so that you can use variables and code through flask's rendering of template -->
+    <head>
+        {% if title %}
+        <title>{{ title }} - W.I.N.S.T.O.N.</title>
+        {% else %}
+        <title>W.I.N.S.T.O.N. the Robot Dog!</title>
+        {% endif %}
+        <!-- Link to stylesheets, css and tailwind -->
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charset="UTF-8" />
+        {% block meta %}
+        <meta name="title" content="Winstogram" />
+        <meta
+            name="description"
+            content="A website centered around a robot dog called W.I.N.S.T.O.N."
+        />
+        {% endblock %}
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static',filename='dist/css/output.css') }}"
+        />
+        <script
+            src="https://code.jquery.com/jquery-3.7.0.slim.min.js"
+            integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE="
+            crossorigin="anonymous"
+        ></script>
+        <script src="{{ url_for('static',filename='src/hamburger.js') }}"></script>
+        {{ moment.include_moment() }} {% block scripts %} {% endblock %}
+    </head>
+
+    <!-- Tailwind css setting background colours and flexboxes -->
+    <body class="bg-primary">
+
+        <nav id="navbar" class="p-5 outline" style="grid-area: n">
+            <div id="links" class="text-center grid grid-cols-4">
+                <!-- <img src="{{url_for('static', filename='/images/logo.png')}}" class="max-h-[calc(1/11)]"> -->
+                <p>Logo</p>
+                <a>Home</a>
+                <a>Stream</a>
+                <a>Winstogram</a>
+            </div>
+        </nav>
+        <nav id="sidebar" class="p-5 outline" style="grid-area: s">
+            <ul class="">
+                <li>
+                    <a>Search</a>
+                </li>
+            </ul>
+            <ul class="align-bottom">
+                <li class="align-bottom">
+                    <a>{{ current_user.username or "Login" }}</a>
+                </li>
+            </ul>
+        </nav>
+        <div id="main" class="p-5 outline" style="grid-area: m">
+            {% block content %} {% endblock %}
+        </div>
+        <div id="related" class="p-5 outline" style="grid-area: r">
+            Related
+        </div>
+
+    </body>
+</html>

@@ -1,6 +1,9 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% block meta %}
+<meta name="title" content="{{ user.username }}'s Profile" />
+<meta name="description" content="The profile page of {{ user.username }}" />
+{% endblock %} {% block content %}
 <div
-    class="lg:w-[60rem] xl:w-[72rem] mx-auto outline rounded bg-blue-400 p-5"
+    class="lg:w-[60rem] xl:w-[72rem] mx-auto outline rounded bg-main p-5"
     id="postContainer"
 >
     <div class="outline rounded bg-accent p-5">
@@ -47,10 +50,11 @@
                 <br />
                 <form method="post" action="{{ url_for('logout') }}" novalidate>
                     <button
-                    typ="submit"
-                    class="text-blue-400 underline w-min md:col-start-3"
-                    >Logout</button
+                        typ="submit"
+                        class="text-blue-400 underline w-min md:col-start-3"
                     >
+                        Logout
+                    </button>
                 </form>
             </div>
             {% endif %}
@@ -67,14 +71,12 @@
         class="col-start-1 col-span-2 lg:col-span-{{ '1' if current_user.is_active and user.username == current_user.username else '2' }}"
     >
         <br />
+        <h2 class="mb-5"><b class="text-4xl underline"> Posts </b></h2>
         <div
-            class="mx-auto outline rounded bg-green-400 p-3"
+            class="mx-auto outline rounded bg-main2 p-3"
             id="postContainer"
         >
-            <div class="outline rounded bg-accent p-5">
-                <b class="text-2xl underline"> Posts </b>
-            </div>
-            <br />{% for post in user.posts %}
+            {% if user.posts | length > 0 %} {% for post in user.posts %}
             <a href="{{ url_for('winstogram', id=post.id) }}">
                 <div class="outline rounded bg-accent p-5">
                     <div id="header">
@@ -87,19 +89,25 @@
                 </div>
             </a>
             <br />
-            {% endfor %}
+            {% endfor %} {% else %}
+            <div class="outline rounded bg-accent p-5 truncate">
+                <div id="header">
+                    <h2 class="text-2xl">
+                        <b>No Posts...</b>
+                    </h2>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
     {% if current_user.is_active %} {% if user.username == current_user.username
     %}
     <div id="collections" class="col-start-1 col-span-2 lg:col-span-1">
         <br />
-        <div class="mx-auto outline rounded bg-red-400 p-3" id="saveContainer">
-            <div class="outline rounded bg-accent p-5">
-                <b class="text-2xl underline"> Saved Posts </b>
-            </div>
-            <br />
-            {% for post in user.collections[0].posts %}
+        <h2 class="mb-5"><b class="text-4xl underline"> Saved Posts </b></h2>
+        <div class="mx-auto outline rounded bg-main3 p-3" id="saveContainer">
+            {% if user.collections[0].posts | length > 0 %} {% for post in
+            user.collections[0].posts %}
             <a href="{{ url_for('winstogram', id=post.id) }}">
                 <div class="outline rounded bg-accent p-5 truncate">
                     <div id="header">
@@ -112,7 +120,15 @@
                 </div>
             </a>
             <br />
-            {% endfor %}
+            {% endfor %} {% else %}
+            <div class="outline rounded bg-accent p-5 truncate">
+                <div id="header">
+                    <h2 class="text-2xl">
+                        <b>No Posts...</b>
+                    </h2>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
     {% endif %} {% endif %}

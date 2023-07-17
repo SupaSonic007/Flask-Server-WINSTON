@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <!-- Using Jinja templating so that you can use variables and code through flask's rendering of template -->
     <head>
         {% if title %}
@@ -7,26 +8,32 @@
         <title>W.I.N.S.T.O.N. the Robot Dog!</title>
         {% endif %}
         <!-- Link to stylesheets, css and tailwind -->
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charset="UTF-8" />
+        {% block meta %}
+        <meta name="title" content="Winstogram" />
+        <meta
+            name="description"
+            content="A website centered around a robot dog called W.I.N.S.T.O.N."
+        />
+        {% endblock %}
         <link
-        rel="stylesheet"
-        href="{{ url_for('static',filename='dist/css/output.css') }}"
+            rel="stylesheet"
+            href="{{ url_for('static',filename='dist/css/output.css') }}"
         />
         <script
-        src="https://code.jquery.com/jquery-3.7.0.slim.min.js"
-        integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE="
-        crossorigin="anonymous"
+            src="https://code.jquery.com/jquery-3.7.0.slim.min.js"
+            integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE="
+            crossorigin="anonymous"
         ></script>
         <script src="{{ url_for('static',filename='src/hamburger.js') }}"></script>
-        {% block scripts %}
-            {{ moment.include_moment() }}
-        {% endblock %}
+        {{ moment.include_moment() }} {% block scripts %} {% endblock %}
     </head>
 
     <!-- Tailwind css setting background colours and flexboxes -->
     <body class="bg-primary">
         <div class="navbar bg-secondary">
-            <div class="md:hidden h-16">
+            <div class="md:hidden h-16 align-baseline">
                 <div id="hamburger">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -50,71 +57,69 @@
                 />
             </div>
         </div>
-            <div class="justify-start bg-secondary hidden md:flex" id="navbar">
-                <a href="/">
-                    <img
-                        class="p-5 max-h-16 hidden md:block"
-                        src="{{ url_for('static', filename='images/logo.png') }}"
-                        alt="W.I.N.S.T.O.N. the Robot Dog"
-                        width="239.5"
-                    />
-                </a>
-                <a href="/">
-                    <p
-                        class="p-5 text-white {{ 'active' if request.path in [url_for('index'), '/'] else '' }}"
-                    >
-                        Home
-                    </p>
-                </a>
-                <a href="{{ url_for('stream') }}">
-                    <p
-                        class="p-5 text-white {{ 'active' if request.path == url_for('stream') else '' }}"
-                    >
-                        Stream
-                    </p>
-                </a>
-                <a href="{{ url_for('winstogram') }}">
-                    <p
-                        class="p-5 text-white {{ 'active' if request.path == url_for('winstogram') else '' }}"
-                    >
-                        Winstogram
-                    </p>
-                </a>
-                <a href="{{ url_for('about') }}">
-                    <p
-                        class="p-5 text-white {{ 'active' if request.path == url_for('about') else '' }}"
-                    >
-                        About
-                    </p>
-                </a>
-                {% if current_user.is_active %} {% if current_user.email in
-                    app.config["ADMINS"] %}
-                    <a href="{{ url_for('admin') }}">
-                        <p
-                        class="p-5 text-white {{ 'active' if request.path == url_for('admin') else '' }}"
-                        >
-                        Admin
-                    </p>
-                </a>
-                {% endif %} {% endif %}
-                {% if not current_user.is_active %}
-                <a href="{{ url_for('login') }}">
-                    <p
-                        class="p-5 text-white {{ 'active' if request.path == url_for('login') else '' }}"
-                    >
-                        Login
-                    </p>
-                </a>
-                {% else %}
-                <a href="{{ url_for('user', id=current_user.id) }}">
-                    <p
-                        class="p-5 text-white {{ 'active' if request.path == url_for('user', id=current_user.id) else '' }}"
-                    >
-                        {{ current_user.username }}
-                    </p>
-                </a>
-                {% endif %}
-            </div>
+        <div class="justify-start bg-secondary hidden md:flex w-full" id="navbar">
+            <a href="/">
+                <img
+                    class="p-5 max-h-16 hidden md:block"
+                    src="{{ url_for('static', filename='images/logo.png') }}"
+                    alt="W.I.N.S.T.O.N. the Robot Dog"
+                />
+            </a>
+            <a href="/">
+                <p
+                    class="p-5 text-white {{ 'active' if request.path in [url_for('index'), '/'] else '' }}"
+                >
+                    Home
+                </p>
+            </a>
+            <a href="{{ url_for('stream') }}">
+                <p
+                    class="p-5 text-white {{ 'active' if request.path == url_for('stream') else '' }}"
+                >
+                    Stream
+                </p>
+            </a>
+            <a href="{{ url_for('winstogram') }}">
+                <p
+                    class="p-5 text-white {{ 'active' if request.path == url_for('winstogram') else '' }}"
+                >
+                    Winstogram
+                </p>
+            </a>
+            <a href="{{ url_for('about') }}">
+                <p
+                    class="p-5 text-white {{ 'active' if request.path == url_for('about') else '' }}"
+                >
+                    About
+                </p>
+            </a>
+            {% if current_user.is_active %} {% if current_user.email in
+            app.config["ADMINS"] %}
+            <a href="{{ url_for('admin') }}">
+                <p
+                    class="p-5 text-white {{ 'active' if request.path == url_for('admin') else '' }}"
+                >
+                    Admin
+                </p>
+            </a>
+            {% endif %} {% endif %} {% if not current_user.is_active %}
+            <a href="{{ url_for('login') }}">
+                <p
+                    class="p-5 text-white {{ 'active' if request.path == url_for('login') else '' }}"
+                >
+                    Login
+                </p>
+            </a>
+            {% else %}
+            <a href="{{ url_for('user', id=current_user.id) }}">
+                <p
+                    class="p-5 text-white {{ 'active' if request.path == url_for('user', id=current_user.id) else '' }}"
+                >
+                    {{ current_user.username }}
+                </p>
+            </a>
+            {% endif %}
+        </div>
 
         <!-- Inset div to hold content, keeping consistent across pages -->
         <div class="px-10 py-5 max-h-[calc(100%-64px)]">
