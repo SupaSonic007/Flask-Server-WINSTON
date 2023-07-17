@@ -73,7 +73,7 @@
         <br />
         <h2 class="mb-5"><b class="text-4xl underline"> Posts </b></h2>
         <div
-            class="mx-auto outline rounded bg-main2 p-3"
+            class="mx-auto outline rounded bg-maintwo p-3"
             id="postContainer"
         >
             {% if user.posts | length > 0 %} {% for post in user.posts %}
@@ -105,7 +105,7 @@
     <div id="collections" class="col-start-1 col-span-2 lg:col-span-1">
         <br />
         <h2 class="mb-5"><b class="text-4xl underline"> Saved Posts </b></h2>
-        <div class="mx-auto outline rounded bg-main3 p-3" id="saveContainer">
+        <div class="mx-auto outline rounded bg-mainthree p-3" id="saveContainer">
             {% if user.collections[0].posts | length > 0 %} {% for post in
             user.collections[0].posts %}
             <a href="{{ url_for('winstogram', id=post.id) }}">
