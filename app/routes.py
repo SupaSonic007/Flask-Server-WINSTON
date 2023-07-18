@@ -10,7 +10,7 @@ import time
 
 def gen():
     while True:
-        with open(f'./app/static/images/stockimg{int(time.time()) % 4}.jpg', 'rb') as image:
+        with open(f'app\static\images\ezgif-frame-{str((int(time.time() * 20) % 200) + 1).zfill(3)}.jpg', 'rb') as image:
             print("sending image")
             yield(b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + image.read() + b'\r\n')

@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     posts = db.relationship('Post', backref='author')
 
     def __repr__(self) -> str:
-        return f"<User {self.username}>"
+        return f"{self.username}"
 
     def __dir__(self) -> list:
         return ['id', 'username', 'email', 'time_created', 'collections', 'posts']
