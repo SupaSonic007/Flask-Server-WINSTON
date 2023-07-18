@@ -1,6 +1,4 @@
-# https://blog.miguelgrinberg.com/post/video-streaming-with-flask
-
-TODO:
+# TODO:
 
     Admin:
     - Admin data fetch (js?)
