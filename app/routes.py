@@ -9,11 +9,14 @@ import time
 
 
 def gen():
+    prev = 0
     while True:
-        with open(f'app\static\images\ezgif-frame-{str((int(time.time() * 20) % 200) + 1).zfill(3)}.jpg', 'rb') as image:
-            print("sending image")
+        # with open(f'app\static\images\ezgif-frame-{str((int(time.time() * 20) % 200) + 1).zfill(3)}.jpg', 'rb') as image:
+        img = ""
+        if open('D:/img_written.txt', 'r').read() == "Written":
+            img = open('D:/img.jpg', 'rb').read()
             yield(b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + image.read() + b'\r\n')
+                b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
 
 @app.route('/')
 @app.route('/index')
