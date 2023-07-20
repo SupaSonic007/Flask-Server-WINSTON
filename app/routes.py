@@ -12,16 +12,13 @@ def gen():
     prev = 0
     length = 0
     while True:
-        time.sleep(0.01)
-        length += 0.01
+        time.sleep(0.02)
         # with open(f'app\static\images\ezgif-frame-{str((int(time.time() * 20) % 200) + 1).zfill(3)}.jpg', 'rb') as image:
         img = ""
-        if not open('D:/img_sent.txt', 'r').read() == "1":
-            if open('D:/img_written.txt', 'r').read() == "1":
-                img = open('D:/img.jpg', 'rb').read()
-                open('D:/img_sent.txt', 'w').write('1')
-                yield(b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+        if open('D:/img_written.txt', 'r').read() == "1":
+            img = open('D:/img.jpg', 'rb').read()
+            yield(b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
         else: yield(b'--frame\r\n')
 
 @app.route('/')
@@ -312,4 +309,21 @@ def edit_profile():
 
 @app.route('/stream_feed')
 def stream_feed():
+    if open('D:/img_running.txt', 'r').read() == '0': return (open('app/static/images/placeholder.jpg', 'rb').read())
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/admin/control', methods=["GET", "POST"])
+@login_required
+def controller():
+    if current_user.email in app.config['ADMINS']:
+        return render_template(
+            'controller.html',
+            title='Controller',
+            app=app
+        )
+    return render_template(
+        'errors/404.html',
+        title='Page not found!',
+        app=app
+    ), 404
