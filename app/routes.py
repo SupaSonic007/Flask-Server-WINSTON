@@ -10,13 +10,19 @@ import time
 
 def gen():
     prev = 0
+    length = 0
     while True:
+        time.sleep(0.01)
+        length += 0.01
         # with open(f'app\static\images\ezgif-frame-{str((int(time.time() * 20) % 200) + 1).zfill(3)}.jpg', 'rb') as image:
         img = ""
-        if open('D:/img_written.txt', 'r').read() == "Written":
-            img = open('D:/img.jpg', 'rb').read()
-            yield(b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+        if not open('D:/img_sent.txt', 'r').read() == "1":
+            if open('D:/img_written.txt', 'r').read() == "1":
+                img = open('D:/img.jpg', 'rb').read()
+                open('D:/img_sent.txt', 'w').write('1')
+                yield(b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+        else: yield(b'--frame\r\n')
 
 @app.route('/')
 @app.route('/index')
