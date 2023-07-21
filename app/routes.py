@@ -1,12 +1,14 @@
-from app import app, db
-from flask import render_template, flash, url_for, request, redirect, Response
-from app.forms import LoginForm, RegistrationForm, PostForm, AdminSQLForm, EditProfileForm, SaveForm
-from app.models import User, Post, Collection, CollectionForPosts
-from flask_login import login_user, current_user, logout_user, login_required
-from sqlalchemy import text
-
 import time
 
+from flask import Response, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
+from sqlalchemy import text
+
+from app import app, db
+from app.forms import (AdminSQLForm, EditProfileForm, LoginForm, PostForm,
+                       RegistrationForm, SaveForm)
+from app.models import Collection, CollectionForPosts, Post, User
+from app.winston import sendToPi
 
 def gen():
     prev = 0
@@ -17,9 +19,11 @@ def gen():
         img = ""
         if open('D:/img_written.txt', 'r').read() == "1":
             img = open('D:/img.jpg', 'rb').read()
-            yield(b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
-        else: yield(b'--frame\r\n')
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+        else:
+            yield (b'--frame\r\n')
+
 
 @app.route('/')
 @app.route('/index')
@@ -307,15 +311,23 @@ def edit_profile():
         app=app
     )
 
+
 @app.route('/stream_feed')
 def stream_feed():
-    if open('D:/img_running.txt', 'r').read() == '0': return (open('app/static/images/placeholder.jpg', 'rb').read())
+    if open('D:/img_running.txt', 'r').read() == '0':
+        return (open('app/static/images/placeholder.jpg', 'rb').read())
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/admin/control', methods=["GET", "POST"])
 @login_required
 def controller():
+
+    if request.method == "POST":
+        data = request.json['data']
+        sendToPi(data)
+        return
+    
     if current_user.email in app.config['ADMINS']:
         return render_template(
             'controller.html',

@@ -15,7 +15,7 @@ login.login_view = 'login'
 login.login_message = 'Please log in to access this page.'
 moment = Moment(app)
 
-from app import routes, models, errors
+from app import routes, models, errors, winston
 
 @login.user_loader
 def load_user(user):
