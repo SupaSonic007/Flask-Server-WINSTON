@@ -1,6 +1,32 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block scripts %} {% endblock %} {% block content %}
 
-
-
+<form action="" method="post" class="" id="controller" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.controllerInput.label }}<br />
+        {{ form.controllerInput(cols=10, id_="controlInput", class_="border
+        border-black rounded w-full") }} {% for error in
+        form.controllerInput.errors %}
+        <span class="text-red-500">[{{error}}]</span>\ {% endfor %}
+    </p>
+    <br />
+    <p>
+        {{ form.submit(class_="border p-1 border-black rounded bg-accent px-5
+        hover:cursor-pointer") }}
+    </p>
+</form>
+<script>
+    $(document).ready(function () {
+        $("#controller").submit(function (event) {
+            event.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('controller')}}",
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify({ data: $("#controlInput").val() }),
+            });
+            console.log($("#controlInput").val());
+        });
+    });
+</script>
 {% endblock %}

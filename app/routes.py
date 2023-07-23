@@ -6,7 +6,7 @@ from sqlalchemy import text
 
 from app import app, db
 from app.forms import (AdminSQLForm, EditProfileForm, LoginForm, PostForm,
-                       RegistrationForm, SaveForm)
+                       RegistrationForm, SaveForm, ControllerForm)
 from app.models import Collection, CollectionForPosts, Post, User
 from app.winston import sendToPi
 
@@ -326,13 +326,15 @@ def controller():
     if request.method == "POST":
         data = request.json['data']
         sendToPi(data)
-        return
+        return "", 200
     
+    form = ControllerForm()
     if current_user.email in app.config['ADMINS']:
         return render_template(
             'controller.html',
             title='Controller',
-            app=app
+            app=app,
+            form=form
         )
     return render_template(
         'errors/404.html',

@@ -63,3 +63,7 @@ class EditProfileForm(FlaskForm):
         user = User.query.filter_by(username=username.data.lower()).first()
         if user and current_user.username != username.data.lower():
             raise ValidationError("Username taken")
+        
+class ControllerForm(FlaskForm):
+    controllerInput = StringField('Controller', validators=[DataRequired()])
+    submit = SubmitField("Submit")
