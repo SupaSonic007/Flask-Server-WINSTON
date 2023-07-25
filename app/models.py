@@ -82,3 +82,29 @@ class CollectionForPosts(db.Model):
 
     def __dir__(self) -> list:
         return ['collection_id', 'post_id']
+
+class Comment(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(2000))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow())
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+    def __repr__(self) -> str:
+        return f"<Comment {self.id} - {self.body}>"
+
+    def __dir__(self) -> list:
+        return ['id', 'body', 'timestamp', 'user_id', 'post_id']
+    
+class Like(db.Model):
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+    def __repr__(self) -> str:
+        return f"<Like {self.id} - {self.user_id} - {self.post_id}>"
+
+    def __dir__(self) -> list:
+        return ['id', 'timestamp', 'user_id', 'post_id']
