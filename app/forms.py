@@ -1,8 +1,8 @@
+import re
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, EqualTo, Length, ValidationError, Email
-from app import db
 from app.models import User
 
 
@@ -15,12 +15,12 @@ class LoginForm (FlaskForm):
 
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[
-                           DataRequired(), Length(1, 16)])
+    username = StringField('Username (Automatically Lowercase)', validators=[
+                           DataRequired(), Length(3, 16, "Username must be between 3 and 16 characters long")])
     email = StringField('Email', validators=[
-                        DataRequired(), Email(), Length(5, 128)])
+                        DataRequired(), Email(), Length(5, 128, "Email must be at least 5 characters long")])
     password = PasswordField('Password', validators=[
-                             DataRequired(), Length(8, 32)])
+                             DataRequired(), Length(8, 32, "Password must be between 8 and 32 characters long")])
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(),
                                        EqualTo('password')])
@@ -29,6 +29,8 @@ class RegistrationForm(FlaskForm):
     def validate_username(self, username) -> None:
         if User.query.filter_by(username=username.data.lower()).first():
             raise ValidationError("Username taken")
+
+        username_regex_check(username)
 
     def validate_email(self, email) -> None:
         if User.query.filter_by(email=email.data).first():
@@ -50,8 +52,10 @@ class AdminSQLForm(FlaskForm):
 class EmptyForm(FlaskForm):
     submit = SubmitField("Submit")
 
+
 class SaveForm(FlaskForm):
     save = SubmitField("Save")
+
 
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[
@@ -61,9 +65,18 @@ class EditProfileForm(FlaskForm):
 
     def validate_username(self, username) -> None:
         user = User.query.filter_by(username=username.data.lower()).first()
-        if user and current_user.username != username.data.lower():
+
+        if user and user.username != current_user.username:
             raise ValidationError("Username taken")
-        
+
+        username_regex_check(username)
+
+
 class ControllerForm(FlaskForm):
     controllerInput = StringField('Controller', validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+def username_regex_check(username):
+    regex = re.compile(r"^[\-a-z0-9_\.]+$")
+    if not regex.match(username.data.lower()):
+        raise ValidationError("Invalid username. Username may not contain spaces or special characters besides '-', '_' & '.'")

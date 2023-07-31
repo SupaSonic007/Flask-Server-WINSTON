@@ -27,7 +27,8 @@
             crossorigin="anonymous"
         ></script>
         <script src="{{ url_for('static',filename='src/hamburger.js') }}"></script>
-        {{ moment.include_moment() }} {% block scripts %} {% endblock %}
+        <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+        {% block scripts %} {% endblock %}
     </head>
 
     <!-- Tailwind css setting background colours and flexboxes -->

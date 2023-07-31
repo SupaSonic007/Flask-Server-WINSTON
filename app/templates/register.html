@@ -16,7 +16,7 @@
         <p>
             {{ form.email.label }}<br>
             {{ form.email(size=32, class_="border border-black rounded") }}
-            {% for error in form.username.errors %}
+            {% for error in form.email.errors %}
                 <span class="text-red-500">[{{error}}]</span>
             {% endfor %}
         </p>

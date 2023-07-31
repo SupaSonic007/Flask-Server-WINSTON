@@ -6,7 +6,7 @@
     {{ form.hidden_tag() }}
     <p>
         {{ form.username.label }}<br />
-        {{ form.username(class_="mx-auto border border-black rounded") }} {% for
+        {{ form.username(class_="px-1 mx-auto border border-black rounded") }} {% for
         error in form.username.errors %}
         <span class="text-red-500">[{{error}}]</span>
         {% endfor %}
@@ -14,7 +14,7 @@
     <br />
     <p>
         {{ form.bio.label }}<br />
-        {{ form.bio(cols=80, rows=10, class_="mx-auto border border-black
+        {{ form.bio(cols=80, rows=10, class_="px-1 mx-auto border border-black
         rounded") }} {% for error in form.bio.errors %}
         <span class="text-red-500">[{{error}}]</span>
         {% endfor %}

@@ -1,34 +1,91 @@
-{% extends "base.html" %} {% block content %}
-
+{% extends "base.html" %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %} {% block content %}
 <div class="w-full">
-    <div
-        class="lg:w-[60rem] xl:w-[72rem] mx-auto outline rounded bg-main p-5"
-        id="postContainer"
-    >
-        <div class="outline rounded bg-accent p-5">
+    <div class="lg:w-[60rem] xl:w-[72rem] mx-auto outline rounded bg-main p-5">
+        <div class="outline rounded bg-accent p-5" id="postContainer"></div>
+    </div>
+</div>
+
+<script>
+    const post = '{{post}}'.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
+
+    renderPost();
+
+    const save = document.getElementById('save');
+    document.addEventListener('DOMContentLoaded', () => {
+        if ('{{ current_user.is_active }}' == 'True') {
+            const postCollection = JSON.parse(
+            eval(`{% if current_user.is_active %}
+                '{{ current_user.collections[0].to_json() | safe }}'
+            )['posts']
+            {% else %}
+            '[]'
+            {% endif %}`));
+            if (postCollection.includes(post)) {
+                save.classList.add('disabled');
+                save.innerHTML = 'Saved!';
+            }
+        } else {
+            save.innerHTML = '';
+        }
+        if (save.classList.contains('disabled') == false) {
+            save.addEventListener('click', async function () {
+                save.innerHTML = 'Saving...';
+                const time = new Date().getTime();
+                await fetch("{{ url_for('save_post', id=post.id) }}", {
+                    method: 'POST',
+                });
+
+                const time2 = new Date().getTime();
+                if (time2 - time < 1000) {
+                    await wait(1000 - (time2 - time));
+                }
+
+                save.classList.add('disabled');
+                save.innerHTML = 'Saved!';
+                save.removeEventListener('click', this);
+            });
+        }
+    });
+
+    function renderPost() {
+        const post = '{{ post | safe }}';
+        const body = marked.parse(
+            `{{post.body}}`.replaceAll('&lt;', '<').replaceAll('&gt;', '>')
+        );
+        const header = '{{post.header}}';
+        const template = `
             <div id="header">
                 <h2 class="text-4xl">
-                    <b>{{ post.header }}</b>
-                    <i class="text-2xl">by <a href="{{ url_for('user', id=post.author.id )}}" class="underline">{{ post.author.username }}</a></i>
-                    <i class="opacity-50 text-xl" id="saveButtonItalics">
-                        {% if current_user.is_active %} {% if post not in
-                        current_user.collections[0].post_list %}
-                        <form
-                            action="{{ url_for('save_post', id=post.id) }}"
-                            method="post"
-                            novalidate
-                        >
-                            {{ form.hidden_tag() }} {{ form.save(class_="hover:cursor-pointer") }} {% endif
-                            %} {% endif %}
-                        </form>
+                    <b>postHeader</b>
+                    <i class="text-2xl"
+                        >by
+                        <a
+                            href="{{ url_for('user', id=post.author.id )}}"
+                            class="underline"
+                            >{{ post.author.username }}</a
+                        ></i
+                    >
+                    <br>
+                    <i class="opacity-50 text-xl" id="saveButton">
+                        {% if current_user.is_active %}
+                        <button id="save">Save</button>
+                        {% endif %}
                     </i>
                 </h2>
             </div>
             <br />
             <div class="px-4" id="body">
-                {% autoescape false %} {{ post.body }} {% endautoescape %}
-            </div>
-        </div>
-    </div>
-</div>
+                {% autoescape false %} postBody {% endautoescape %}
+            </div>`
+            .replaceAll('postHeader', header)
+            .replaceAll('postBody', body);
+        const postContainer = document.getElementById('postContainer');
+        postContainer.innerHTML = template;
+    }
+
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+</script>
+
 {% endblock %}

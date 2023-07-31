@@ -1,1 +1,1 @@
-flask --app winston.py run --port 80 --debug
+flask --app winston.py run --host 0.0.0.0 --port 80 --debug

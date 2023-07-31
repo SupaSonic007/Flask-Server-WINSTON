@@ -7,15 +7,16 @@ from sqlalchemy import text
 from app import app, db
 from app.forms import (AdminSQLForm, EditProfileForm, LoginForm, PostForm,
                        RegistrationForm, SaveForm, ControllerForm)
-from app.models import Collection, CollectionForPosts, Post, User
+from app.models import Collection, CollectionForPosts, Post, User, Comment, Like
 from app.winston import sendToPi
 
+import json
+
+
 def gen():
-    prev = 0
-    length = 0
     while True:
+
         time.sleep(0.02)
-        # with open(f'app\static\images\ezgif-frame-{str((int(time.time() * 20) % 200) + 1).zfill(3)}.jpg', 'rb') as image:
         img = ""
         if open('D:/img_written.txt', 'r').read() == "1":
             img = open('D:/img.jpg', 'rb').read()
@@ -53,6 +54,7 @@ def winstogram(id=None):
     # For pagination, get page number from url (not being provided yet but will be in the future)
     page = request.args.get('page', 1, type=int)
     posts = []
+
     if id:
         form = SaveForm()
         if form.validate_on_submit():
@@ -71,11 +73,12 @@ def winstogram(id=None):
             app=app,
             form=form
         )
-    for post in Post.query.paginate(page=page, error_out=False).items:
+
+    for post in Post.query.paginate(page=page, per_page=10, error_out=False).items:
         # Replace any attempted html injection with escaped characters
         posts.append({
-            'header': post.header.replace('<', "&lt; ").replace('>', "&gt; "),
-            'body': post.body.replace('\n', '<br>').replace('<', "&lt; ").replace('>', "&gt; "),
+            'header': post.header.replace('<', "&lt;").replace('>', "&gt;"),
+            'body': post.body.replace('\n', ' ').replace('<', "&lt; ").replace('>', "&gt; "),
             'author': User.query.get(Post.query.get(post.id).user_id).username,
             'id': post.id,
             'timestamp': post.timestamp
@@ -100,7 +103,7 @@ def winstogram(id=None):
     return render_template(
         'posts.html',
         title='Winstogram',
-        posts=posts,
+        posts=json.dumps(posts, default=str),
         current_user=current_user,
         app=app,
         form=form,
@@ -247,20 +250,6 @@ def admin():
             title=f"Admin Panel",
             app=app,
             form=sql_form,
-            db=db,
-
-            # Tables: All tables in database from database keys
-            # TableText: All tables in database, formatted for html
-            # TableModels: All table models in a dictionary
-            tableText="<br>".join(tables),
-            tables=tables,
-            tableModels=tableModels,
-            # Table: Requested table
-            # View: Requested table entry
-            # Selection: Requested table entry
-            # Columns: Columns of requested table
-            inspection={"table": table, "view": view,
-                        "selection": selection, "columns": columns},
         )
     return render_template(
         'errors/404.html',
@@ -270,7 +259,6 @@ def admin():
 
 
 @app.route('/post/<id>/save', methods=["POST"])
-@app.route('/posts/<id>/save', methods=["POST"])
 def save_post(id):
 
     collections = current_user.collections
@@ -285,12 +273,14 @@ def save_post(id):
 
     save_collection = CollectionForPosts(
         collection_id=collection.id,
-        post_id=id
+        post_id=int(id)
     )
 
     db.session.add(save_collection)
     db.session.commit()
-    return (redirect(url_for('winstogram', id=id)))
+    return {
+        'status': 'success'
+    }
 
 
 @app.route('/edit_profile', methods=["GET", "POST"])
@@ -327,7 +317,7 @@ def controller():
         data = request.json['data']
         sendToPi(data)
         return "", 200
-    
+
     form = ControllerForm()
     if current_user.email in app.config['ADMINS']:
         return render_template(

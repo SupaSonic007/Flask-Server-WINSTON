@@ -1,4 +1,6 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %} {% block content %}
 
 <div
     class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4 md:h-[calc(100vh-9rem)] sm:p-5"
@@ -15,8 +17,8 @@
             {{ form.hidden_tag() }}
             <p>
                 {{ form.subject.label }}<br />
-                {{ form.subject(size=40, class_="border border-black rounded
-                w-full") }} {% for error in form.subject.errors %}
+                {{ form.subject(size=40, class_="px-1 border border-black
+                rounded w-full") }} {% for error in form.subject.errors %}
                 <br />
                 <span class="text-black"><b>[{{error}}]</b></span>
                 {% endfor %}
@@ -24,7 +26,7 @@
             <br />
             <p>
                 {{ form.body.label }}<br />
-                {{ form.body(cols=42, rows=10, class_="border border-black
+                {{ form.body(cols=42, rows=10, class_="px-1 border border-black
                 rounded w-full") }} {% for error in form.body.errors %}
                 <br />
                 <span class="text-black"><b>[{{error}}]</b></span>
@@ -42,27 +44,35 @@
     <div
         class="{{ 'col-span-full' if not current_user.is_active else 'sm:col-span-2 md:col-span-2 lg:col-span-3 xl:col-span-4' }} bg-main overflow-y-auto outline p-5 rounded"
         id="postsContainer"
-    >
-        {% for post in posts[::-1] %}
-        <a href="{{ url_for('winstogram', id=post.id) }}">
-            <div class="outline bg-accent rounded p-5" id="{{ post.id }}">
+    ></div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const posts = JSON.parse(`{{ posts | safe }}`);
+        console.log(posts);
+
+        for (post of posts.reverse()) {
+            var temp = `<a href="{{ url_for('winstogram')}}/${post.id}">
+            <div class="outline bg-accent rounded p-5" id="${post.id}">
                 <div class="truncate" id="header">
                     {% autoescape false %}
-                    <b>{{ post.header }}</b>
+                    <b>${post.header}</b>
                     <br /><i
-                        >by {{ post.author }} {{
-                        moment(post.timestamp).fromNow() }}</i
+                        >by ${post.author} 
+                        ${moment(post.timestamp).fromNow()}</i
                     >
                     {% endautoescape %}
                 </div>
                 <div class="px-4 truncate" id="body">
-                    {% autoescape false %} {{ post.body }} {% endautoescape %}
+                    ${marked.parse(post.body, {mangle: false, headerIds: false})}
                 </div>
             </div>
         </a>
-        <br />
-        {% endfor %}
-    </div>
-</div>
+        <br>`;
+            document.getElementById('postsContainer').innerHTML += temp;
+        }
+    });
+</script>
 
 {% endblock %}

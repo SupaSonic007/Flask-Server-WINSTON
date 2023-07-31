@@ -1,15 +1,22 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %} {% block content %}
 <div>
-
     <h1 class="text-5xl float-left">Admin Panel</h1>
-    <a href="{{ url_for('controller') }}" class=" mt-3 border p-1 border-black rounded bg-accent
-    px-5 hover:cursor-pointer hidden mx-10 md:block float-left">Controller</a>
+    <a
+        href="{{ url_for('controller') }}"
+        class="mt-3 border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer hidden mx-10 md:block float-left"
+        >Controller</a
+    >
 </div>
 <br />
 <br />
 <br />
-<a href="{{ url_for('controller') }}" class=" mt-3 border p-1 border-black rounded bg-accent
-px-5 hover:cursor-pointer block md:hidden float-left">Controller</a>
+<a
+    href="{{ url_for('controller') }}"
+    class="mt-3 border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer block md:hidden float-left"
+    >Controller</a
+>
 <br />
 <br />
 <br />
@@ -58,23 +65,23 @@ px-5 hover:cursor-pointer block md:hidden float-left">Controller</a>
                 <a
                     href="{{ url_for('admin', table=table, collection=item.collection_id, post=item.post_id) }}"
                     >{{ item }}</a
-                > |
-                {% else %}
+                >
+                | {% else %}
                 <a href="{{ url_for('admin', table=table, view=item.id) }}"
                     >{{ item }}</a
-                > |
-                {% endif %} {% endfor %}
+                >
+                | {% endif %} {% endfor %}
             </td>
         </tr>
         {% endfor %}
     </table>
-    <br>
-    <div
-        id="inspectDBEntryContainer"
-        class="col-span-full"
-    >
+    <br />
+    <div id="inspectDBEntryContainer" class="col-span-full">
         {% if inspection['table'] %}
-        <table id="inspectionTable" class="border-2 w-full bg-accent border-black">
+        <table
+            id="inspectionTable"
+            class="border-2 w-full bg-accent border-black"
+        >
             <tr id="inspectionObject">
                 <!-- inspect entry data -->
                 <td>{{ columns }}</td>
@@ -90,6 +97,27 @@ px-5 hover:cursor-pointer block md:hidden float-left">Controller</a>
         {% endif %}
     </div>
     <br />
-    
 </div>
+<script>
+    const data = marked.parse(`{{ post.body }}`);
+    const temp = `
+                <tr>
+                    <th class="border-r-2 border-b-2 border-black">{{ table }}</th>
+                    <td class="border-b-2 border-black">
+                        {% for item in tableModels[table].query.paginate(page=1,
+                        per_page=5, error_out=False) %} {% if
+                        table=='collection_for_posts' %}
+                        <a
+                            href="{{ url_for('admin', table=table, collection=item.collection_id, post=item.post_id) }}"
+                            >{{ item }}</a
+                        >
+                        | {% else %}
+                        <a href="{{ url_for('admin', table=table, view=item.id) }}"
+                            >{{ item }}</a
+                        >
+                        | {% endif %} {% endfor %}
+                    </td>
+                </tr>
+                `;
+</script>
 {% endblock %}

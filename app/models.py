@@ -1,8 +1,12 @@
-from app import db
+import json
+import re
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
 from hashlib import md5
+
+from flask_login import UserMixin
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app import db
 
 
 class User(db.Model, UserMixin):
@@ -16,6 +20,7 @@ class User(db.Model, UserMixin):
     collections = db.relationship(
         'Collection', backref='collection_author')
     posts = db.relationship('Post', backref='author')
+    comments = db.relationship('Comment', backref='author')
 
     def __repr__(self) -> str:
         return f"{self.username}"
@@ -38,6 +43,21 @@ class User(db.Model, UserMixin):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
+    def to_dict(self):
+        """
+        Convert user to dict
+        """
+
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "time_created": self.time_created,
+            "bio": self.bio,
+            "collections": self.collections,
+            "posts": self.posts,
+
+        }
 
 class Post(db.Model, UserMixin):
 
@@ -56,6 +76,27 @@ class Post(db.Model, UserMixin):
     def __dir__(self) -> list:
         return ['id', 'header', 'body', 'imageLocation', 'timestamp', 'user_id', 'collections']
 
+    def to_dict(self):
+        """
+        Convert post to dict
+        """
+
+        return {
+            "id": self.id,
+            "header": self.header,
+            "body": self.body,
+            "imageLocation": self.imageLocation,
+            "timestamp": self.timestamp,
+            "user_id": self.user_id,
+            "collections": self.collections
+        }
+
+    def to_json(self):
+        """
+        String representation of post in json
+        """
+        return json.dumps(self.to_dict(), default=str)
+
 
 class Collection(db.Model):
 
@@ -70,6 +111,23 @@ class Collection(db.Model):
     def __dir__(self) -> list:
         return ['id', 'user_id', 'posts']
 
+    def to_dict(self):
+        """
+        Convert collection to dict
+        """
+
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "posts": self.posts,
+        }
+
+    def to_json(self):
+        """
+        String representation of collection in json
+        """
+        return json.dumps(self.to_dict(), default=str)
+
 
 class CollectionForPosts(db.Model):
 
@@ -82,6 +140,7 @@ class CollectionForPosts(db.Model):
 
     def __dir__(self) -> list:
         return ['collection_id', 'post_id']
+
 
 class Comment(db.Model):
 
@@ -96,9 +155,10 @@ class Comment(db.Model):
 
     def __dir__(self) -> list:
         return ['id', 'body', 'timestamp', 'user_id', 'post_id']
-    
+
+
 class Like(db.Model):
-    
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))

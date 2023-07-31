@@ -1,9 +1,10 @@
 from flask import Flask
-from config import Config
-from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_moment import Moment
-from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
+
+from config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -15,7 +16,8 @@ login.login_view = 'login'
 login.login_message = 'Please log in to access this page.'
 moment = Moment(app)
 
-from app import routes, models, errors, winston
+from app import api, errors, models, routes, winston
+
 
 @login.user_loader
 def load_user(user):
