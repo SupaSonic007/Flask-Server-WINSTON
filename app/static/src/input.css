@@ -15,16 +15,17 @@ html {
     height:100%;
 }
 
-/* body {
-    height:100%;
-    display:grid;
-    grid-template-columns: 2fr 2fr 5fr 2fr 2fr;
-    grid-template-rows: 1fr 10fr;
-    grid-template-areas: 
-    ". n n n ."
-    ". s m r .";
-} */
+button[data-saving="true"] {
+    cursor: wait;
+    content: "Saving...";
+}
 
-body sidebar {
-    display: block;
+button[data-saved="true"] {
+    cursor: wait;
+    content: "Saved!";
+}
+
+button[data-saved="false"] {
+    cursor: wait;
+    content: "Save";
 }

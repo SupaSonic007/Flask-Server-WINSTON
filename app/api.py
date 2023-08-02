@@ -2,35 +2,40 @@ import json
 
 from flask import request, jsonify
 
-from app import app
+from app import app, db
 from app.models import Collection, Comment, Post, User
 
 
-@app.route('/api', methods=["POST"])
+@app.route('/api', methods=["GET"])
 def api():
+    """
+    API root
+    """
     return jsonify(response="Invalid request", status="error"), 400
 
 
-@app.route('/api/posts', methods=["POST"])
-def api_posts():
+@app.route('/api/posts/<id>', methods=["GET"])
+def api_post(id):
     """
     Get post by id
+    :param id: post id
+    :return: json
     """
-    data = request.get_json()
 
-    if not data or not data.get('id'):
+    if not id:
         return jsonify(response="Invalid request", status='error'), 400
 
-    post = Post.query.get(data.get('id'))
+    post = Post.query.get(id)
 
     if not post:
         return jsonify(response="Post not found", status='error'), 404
 
     response = {
         'id': post.id,
-        'subject': post.subject,
+        'header': post.header,
         'body': post.body,
         'timestamp': post.timestamp,
+        'username': post.author.username,
         'user_id': post.user_id,
         'comments': {
             comment.id: {
@@ -43,13 +48,14 @@ def api_posts():
         },
     }
 
-    return jsonify(**response), 200
+    return response, 200
 
 
-@app.route('/api/posts/all', methods=["POST"])
+@app.route('/api/posts', methods=["GET"])
 def api_posts_all():
     """
     Get all posts
+    :return: json
     """
 
     posts = Post.query.all()
@@ -58,7 +64,7 @@ def api_posts_all():
         'posts': {
             post.id: {
                 'id': post.id,
-                'subject': post.subject,
+                'header': post.header,
                 'body': post.body,
                 'timestamp': post.timestamp,
                 'user_id': post.user_id,
@@ -75,21 +81,21 @@ def api_posts_all():
         }
     }, 200
 
-    return jsonify(**response), 200
+    return response, 200
 
 
-@app.route('/api/users', methods=["POST"])
-def api_users():
+@app.route('/api/users/<id>', methods=["GET"])
+def api_users(id):
     """
     Get user by id
+    :param id: user id
+    :return: json
     """
 
-    data = request.get_json()
-
-    if not data or not data.get('id'):
+    if not id:
         return jsonify(response="Invalid request", status='error'), 400
 
-    user = User.query.get(data.get('id'))
+    user = User.query.get(id)
 
     if not user:
         return jsonify(response="User not found", status='error'), 404
@@ -100,7 +106,7 @@ def api_users():
         'posts': {
             post.id: {
                 'id': post.id,
-                'subject': post.subject,
+                'header': post.header,
                 'body': post.body,
                 'timestamp': post.timestamp,
                 'user_id': post.user_id,
@@ -126,13 +132,14 @@ def api_users():
         }
     }, 200
 
-    return jsonify(**response), 200
+    return response, 200
 
 
-@app.route('/api/users/all', methods=["POST"])
+@app.route('/api/users', methods=["GET"])
 def api_users_all():
     """
     Get all users
+    :return: json
     """
 
     users = User.query.all()
@@ -149,7 +156,7 @@ def api_users_all():
                     post.id:
                     {
                         'id': post.id,
-                        'subject': post.subject,
+                        'header': post.header,
                         'body': post.body,
                         'timestamp': post.timestamp,
                         'user_id': post.user_id,
@@ -180,21 +187,21 @@ def api_users_all():
             } for user in users
         },
     }
-    return jsonify(**response), 200
+    return response, 200
 
 
-@app.route('/api/collections', methods=["POST"])
-def api_collections():
+@app.route('/api/collections/<id>', methods=["GET"])
+def api_collections(id):
     """
     Get collection by id
+    :param id: collection id
+    :return: json
     """
 
-    data = request.get_json()
-
-    if not data or not data.get('id'):
+    if not id:
         return jsonify(response="Invalid request", status='error'), 400
 
-    collection = Collection.query.get(data.get('id'))
+    collection = Collection.query.get(id)
 
     if not collection:
         return jsonify(response="Collection not found", status='error'), 404
@@ -205,7 +212,7 @@ def api_collections():
         'posts': {
             post.id: {
                 'id': post.id,
-                'subject': post.subject,
+                'header': post.header,
                 'body': post.body,
                 'timestamp': post.timestamp,
                 'user_id': post.user_id,
@@ -221,13 +228,14 @@ def api_collections():
             } for post in collection.posts.all()
         },
     }
-    return jsonify(**response), 200
+    return response, 200
 
 
-@app.route('/api/collections/all', methods=["POST"])
+@app.route('/api/collections', methods=["GET"])
 def api_collections_all():
     """
     Get all collections
+    :return: json
     """
 
     collections = Collection.query.all()
@@ -240,7 +248,7 @@ def api_collections_all():
                 'posts': {
                     post.id: {
                         'id': post.id,
-                        'subject': post.subject,
+                        'header': post.header,
                         'body': post.body,
                         'timestamp': post.timestamp,
                         'user_id': post.user_id,
@@ -258,13 +266,15 @@ def api_collections_all():
             } for collection in collections
         },
     }
-    return jsonify(**response), 200
+    return response, 200
 
 
-@app.route('/api/comments', methods=["POST"])
-def api_comments():
+@app.route('/api/comments/<id>', methods=["GET"])
+def api_comments(id):
     """
     Get comment by id
+    :param id: comment id
+    :return: json
     """
 
     data = request.get_json()
@@ -284,13 +294,14 @@ def api_comments():
         'user_id': comment.user_id,
         'post_id': comment.post_id,
     }
-    return jsonify(**response), 200
+    return response, 200
 
 
-@app.route('/api/comments/all', methods=["POST"])
+@app.route('/api/comments', methods=["GET"])
 def api_comments_all():
     """
-    Get all comments
+    Get comments
+    :return: json
     """
 
     comments = Comment.query.all()
@@ -307,4 +318,56 @@ def api_comments_all():
         },
         'status': 'success',
     }
-    return jsonify(**response), 200
+    return response, 200
+
+@app.route('/api/latest_posts/', methods=["GET"])
+@app.route('/api/latest_posts/<amount>', methods=["GET"])
+def api_latest_posts(amount=5):
+    """
+    Get latest posts
+    :param amount: amount of posts to get, default 5
+    :return: json
+    """
+
+    posts = Post.query.order_by(Post.timestamp.desc()).limit(str(amount)).all()
+
+    response = {
+        'posts': {
+            post.id: {
+                'id': post.id,
+                'header': post.header,
+                'body': post.body,
+                'timestamp': post.timestamp,
+                'user_id': post.user_id,
+                'comments': {
+                    comment.id: {
+                        'id': comment.id,
+                        'body': comment.body,
+                        'timestamp': comment.timestamp,
+                        'user_id': comment.user_id,
+                        'post_id': comment.post_id,
+                    } for comment in post.comments.all()
+                },
+            } for post in posts
+        },
+    }
+    return response, 200
+
+@app.route('/api/check_existence_in_collections/<id>', methods=['GET'])
+def api_check_existence_in_collections(id=None):
+    """
+    Check if a post is present in a collection
+    :param id: post id
+    :return: json
+    """
+
+    if not id:
+        return jsonify(response="Invalid request", status='error'), 400
+    
+    if not Post.query.get(id):
+        return jsonify(response="Post not found", status='error'), 404
+    
+    if db.session.query(Collection).filter(Collection.posts.any(id=id)).count() > 0:
+        return jsonify(response=True, status='success'), 200
+    
+    return jsonify(response=False, status='success'), 200

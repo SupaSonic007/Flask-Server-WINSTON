@@ -8,32 +8,28 @@
 </div>
 
 <script>
-    const post = '{{post}}'.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
-
-    renderPost();
-
-    const save = document.getElementById('save');
-    document.addEventListener('DOMContentLoaded', () => {
-        if ('{{ current_user.is_active }}' == 'True') {
-            const postCollection = JSON.parse(
-            eval(`{% if current_user.is_active %}
-                '{{ current_user.collections[0].to_json() | safe }}'
-            )['posts']
-            {% else %}
-            '[]'
-            {% endif %}`));
-            if (postCollection.includes(post)) {
-                save.classList.add('disabled');
-                save.innerHTML = 'Saved!';
-            }
-        } else {
-            save.innerHTML = '';
+    
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+        await renderPost();
+        const save = document.getElementById('save');
+        if ('{{ current_user.is_active }}' !== 'True') {
+            return;
         }
+
+        if (await checkExistenceInCollections()) {
+            save.classList.add('disabled');
+            save.dataset.saved = 'true';
+            return;
+        } else {
+            save.dataset.saved = 'false';
+        }
+
         if (save.classList.contains('disabled') == false) {
             save.addEventListener('click', async function () {
-                save.innerHTML = 'Saving...';
+                save.dataset.saving = 'true';
                 const time = new Date().getTime();
-                await fetch("{{ url_for('save_post', id=post.id) }}", {
+                await fetch("{{ url_for('save_post', id=id) }}", {
                     method: 'POST',
                 });
 
@@ -43,18 +39,20 @@
                 }
 
                 save.classList.add('disabled');
-                save.innerHTML = 'Saved!';
+                save.dataset.saved = 'true';
                 save.removeEventListener('click', this);
             });
         }
     });
 
-    function renderPost() {
-        const post = '{{ post | safe }}';
+    async function renderPost() {
+        const post = await getPost(parseInt('{{ id }}'));
         const body = marked.parse(
-            `{{post.body}}`.replaceAll('&lt;', '<').replaceAll('&gt;', '>')
+            post.body,
+            {mangle: false, headerIds: false}
         );
-        const header = '{{post.header}}';
+        const header = post.header;
+        const author = post.username;
         const template = `
             <div id="header">
                 <h2 class="text-4xl">
@@ -62,16 +60,14 @@
                     <i class="text-2xl"
                         >by
                         <a
-                            href="{{ url_for('user', id=post.author.id )}}"
+                            href="{{ url_for('user', id=authorid)}}"
                             class="underline"
-                            >{{ post.author.username }}</a
+                            >postAuthor</a
                         ></i
                     >
                     <br>
                     <i class="opacity-50 text-xl" id="saveButton">
-                        {% if current_user.is_active %}
                         <button id="save">Save</button>
-                        {% endif %}
                     </i>
                 </h2>
             </div>
@@ -80,9 +76,25 @@
                 {% autoescape false %} postBody {% endautoescape %}
             </div>`
             .replaceAll('postHeader', header)
-            .replaceAll('postBody', body);
+            .replaceAll('postBody', body)
+            .replaceAll('postAuthor', author)
+            .replaceAll('authorid', post.user_id);
         const postContainer = document.getElementById('postContainer');
         postContainer.innerHTML = template;
+    }
+
+    async function checkExistenceInCollections() {
+        fetched = await fetch(
+            '{{ url_for("api_check_existence_in_collections", id=id) }}'
+        ).then((res) => res.json());
+        return fetched.response;
+    }
+
+    async function getPost(id) {
+        fetched = await fetch(
+            '{{ url_for("api_post", id=id) }}'
+        ).then((res) => res.json());
+        return fetched;
     }
 
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

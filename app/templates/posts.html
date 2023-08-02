@@ -50,9 +50,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const posts = JSON.parse(`{{ posts | safe }}`);
-        console.log(posts);
 
-        for (post of posts.reverse()) {
+        for (post of posts) {
             var temp = `<a href="{{ url_for('winstogram')}}/${post.id}">
             <div class="outline bg-accent rounded p-5" id="${post.id}">
                 <div class="truncate" id="header">
@@ -73,6 +72,14 @@
             document.getElementById('postsContainer').innerHTML += temp;
         }
     });
+
+    async function getLatestPosts() {
+        const response = await fetch(
+            "{{ url_for('api_latest_posts') }}"
+        );
+        const posts = await response.json();
+        return posts;
+    }
 </script>
 
 {% endblock %}

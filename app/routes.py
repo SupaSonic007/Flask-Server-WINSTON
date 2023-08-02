@@ -47,36 +47,34 @@ def about():
     )
 
 
-@app.route('/posts/<id>', methods=['GET', 'POST'])
+@app.route('/posts/<post_id>', methods=['GET', 'POST'])
 @app.route('/posts', methods=['GET', 'POST'])
-def winstogram(id=None):
+def winstogram(post_id=None):
 
-    # For pagination, get page number from url (not being provided yet but will be in the future)
-    page = request.args.get('page', 1, type=int)
-    posts = []
+    posts_list = []
 
-    if id:
-        form = SaveForm()
-        if form.validate_on_submit():
+    if post_id:
+        save_form = SaveForm()
+        if save_form.validate_on_submit():
             # Save the post
             saveCollection = current_user.collections.first()
             saveCollection.posts.append(Post.query.get(id))
             db.session.commit()
 
-            return redirect(url_for('post', id=id))
+            return redirect(url_for('post', id=post_id))
         return render_template(
             'post.html',
             title='Post',
-            post=Post.query.get(id),
-            author=User.query.get(Post.query.get(id).user_id),
             current_user=current_user,
+            id=post_id,
+            authorid=Post.query.get(post_id).user_id,
             app=app,
-            form=form
+            form=save_form
         )
-
-    for post in Post.query.paginate(page=page, per_page=10, error_out=False).items:
+    # Get 10 posts
+    for post in Post.query.order_by(Post.timestamp.desc()).limit(10).all():
         # Replace any attempted html injection with escaped characters
-        posts.append({
+        posts_list.append({
             'header': post.header.replace('<', "&lt;").replace('>', "&gt;"),
             'body': post.body.replace('\n', ' ').replace('<', "&lt; ").replace('>', "&gt; "),
             'author': User.query.get(Post.query.get(post.id).user_id).username,
@@ -84,13 +82,13 @@ def winstogram(id=None):
             'timestamp': post.timestamp
         })
 
-    form = PostForm()
-    if form.validate_on_submit():
+    post_form = PostForm()
+    if post_form.validate_on_submit():
         post = Post(
             # Replace any attempted html injection with escaped characters
-            header=form.subject.data.replace(
+            header=post_form.subject.data.replace(
                 '<', "&lt;").replace('>', "&gt;"),
-            body=form.body.data.replace('\r', '').replace(
+            body=post_form.body.data.replace('\r', '').replace(
                 '<', "&lt;").replace('>', "&gt;"),
             imageLocation=None,
             user_id=current_user.get_id()
@@ -103,11 +101,10 @@ def winstogram(id=None):
     return render_template(
         'posts.html',
         title='Winstogram',
-        posts=json.dumps(posts, default=str),
+        posts=json.dumps(posts_list, default=str),
         current_user=current_user,
         app=app,
-        form=form,
-        page=page
+        form=post_form,
     )
 
 
@@ -277,6 +274,35 @@ def save_post(id):
     )
 
     db.session.add(save_collection)
+    db.session.commit()
+    return {
+        'status': 'success'
+    }
+
+@app.route('/post/<id>/unsave', methods=["POST"])
+def unsave_post(id):
+
+    collections = current_user.collections
+    if len(collections) == 0:
+        collection = Collection(
+            user_id=current_user.id
+        )
+        db.session.add(collection)
+        db.session.commit()
+    else:
+        collection = current_user.collections[0]
+
+    save_collection = CollectionForPosts.query.filter_by(
+        collection_id=collection.id,
+        post_id=int(id)
+    ).first()
+
+    if not save_collection:
+        return {
+            'status': 'error'
+        }
+
+    db.session.remove(save_collection)
     db.session.commit()
     return {
         'status': 'success'

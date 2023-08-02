@@ -59,6 +59,7 @@ class User(db.Model, UserMixin):
 
         }
 
+
 class Post(db.Model, UserMixin):
 
     id = db.Column(db.Integer, primary_key=True)
@@ -69,6 +70,7 @@ class Post(db.Model, UserMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     collections = db.relationship('Collection', secondary='collection_for_posts', backref=db.backref(
         'post_list'))
+    comments = db.relationship('Comment', backref=db.backref('post'), lazy='dynamic')
 
     def __repr__(self) -> str:
         return f"<Post {self.id} - {self.author}>"
@@ -88,7 +90,8 @@ class Post(db.Model, UserMixin):
             "imageLocation": self.imageLocation,
             "timestamp": self.timestamp,
             "user_id": self.user_id,
-            "collections": self.collections
+            "collections": self.collections,
+            "comments": self.comments,
         }
 
     def to_json(self):
