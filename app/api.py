@@ -320,6 +320,7 @@ def api_comments_all():
     }
     return response, 200
 
+
 @app.route('/api/latest_posts/', methods=["GET"])
 @app.route('/api/latest_posts/<amount>', methods=["GET"])
 def api_latest_posts(amount=5):
@@ -331,27 +332,25 @@ def api_latest_posts(amount=5):
 
     posts = Post.query.order_by(Post.timestamp.desc()).limit(str(amount)).all()
 
-    response = {
-        'posts': {
-            post.id: {
-                'id': post.id,
-                'header': post.header,
-                'body': post.body,
-                'timestamp': post.timestamp,
-                'user_id': post.user_id,
-                'comments': {
-                    comment.id: {
-                        'id': comment.id,
-                        'body': comment.body,
-                        'timestamp': comment.timestamp,
-                        'user_id': comment.user_id,
-                        'post_id': comment.post_id,
-                    } for comment in post.comments.all()
-                },
-            } for post in posts
-        },
-    }
+    response = [{
+            'id': post.id,
+            'header': post.header,
+            'body': post.body,
+            'timestamp': post.timestamp,
+            'user_id': post.user_id,
+            'comments': {
+                comment.id: {
+                    'id': comment.id,
+                    'body': comment.body,
+                    'timestamp': comment.timestamp,
+                    'user_id': comment.user_id,
+                    'post_id': comment.post_id,
+                } for comment in post.comments.all()
+            },
+        } for post in posts
+    ]
     return response, 200
+
 
 @app.route('/api/check_existence_in_collections/<id>', methods=['GET'])
 def api_check_existence_in_collections(id=None):
@@ -363,11 +362,11 @@ def api_check_existence_in_collections(id=None):
 
     if not id:
         return jsonify(response="Invalid request", status='error'), 400
-    
+
     if not Post.query.get(id):
         return jsonify(response="Post not found", status='error'), 404
-    
+
     if db.session.query(Collection).filter(Collection.posts.any(id=id)).count() > 0:
         return jsonify(response=True, status='success'), 200
-    
+
     return jsonify(response=False, status='success'), 200

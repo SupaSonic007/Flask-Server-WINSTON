@@ -71,16 +71,6 @@ def winstogram(post_id=None):
             app=app,
             form=save_form
         )
-    # Get 10 posts
-    for post in Post.query.order_by(Post.timestamp.desc()).limit(10).all():
-        # Replace any attempted html injection with escaped characters
-        posts_list.append({
-            'header': post.header.replace('<', "&lt;").replace('>', "&gt;"),
-            'body': post.body.replace('\n', ' ').replace('<', "&lt; ").replace('>', "&gt; "),
-            'author': User.query.get(Post.query.get(post.id).user_id).username,
-            'id': post.id,
-            'timestamp': post.timestamp
-        })
 
     post_form = PostForm()
     if post_form.validate_on_submit():
@@ -101,7 +91,6 @@ def winstogram(post_id=None):
     return render_template(
         'posts.html',
         title='Winstogram',
-        posts=json.dumps(posts_list, default=str),
         current_user=current_user,
         app=app,
         form=post_form,

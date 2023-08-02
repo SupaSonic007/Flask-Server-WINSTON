@@ -48,8 +48,9 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const posts = JSON.parse(`{{ posts | safe }}`);
+    document.addEventListener('DOMContentLoaded', async () => {
+        const posts = await getLatestPosts();
+        console.log(posts);
 
         for (post of posts) {
             var temp = `<a href="{{ url_for('winstogram')}}/${post.id}">

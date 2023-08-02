@@ -8,8 +8,6 @@
 </div>
 
 <script>
-    
-    
     document.addEventListener('DOMContentLoaded', async () => {
         await renderPost();
         const save = document.getElementById('save');
@@ -47,22 +45,20 @@
 
     async function renderPost() {
         const post = await getPost(parseInt('{{ id }}'));
-        const body = marked.parse(
-            post.body,
-            {mangle: false, headerIds: false}
-        );
-        const header = post.header;
-        const author = post.username;
+        const body = marked.parse(post.body, {
+            mangle: false,
+            headerIds: false,
+        });
         const template = `
             <div id="header">
                 <h2 class="text-4xl">
-                    <b>postHeader</b>
+                    <b>${post.header}</b>
                     <i class="text-2xl"
                         >by
                         <a
                             href="{{ url_for('user', id=authorid)}}"
                             class="underline"
-                            >postAuthor</a
+                            >${post.username}</a
                         ></i
                     >
                     <br>
@@ -73,12 +69,14 @@
             </div>
             <br />
             <div class="px-4" id="body">
-                {% autoescape false %} postBody {% endautoescape %}
+                {% autoescape false %} ${marked.parse(post.body, {
+                    mangle: false,
+                    headerIds: false,
+                })} {% endautoescape %}
             </div>`
             .replaceAll('postHeader', header)
             .replaceAll('postBody', body)
-            .replaceAll('postAuthor', author)
-            .replaceAll('authorid', post.user_id);
+            .replaceAll('postAuthor', author);
         const postContainer = document.getElementById('postContainer');
         postContainer.innerHTML = template;
     }
@@ -91,9 +89,9 @@
     }
 
     async function getPost(id) {
-        fetched = await fetch(
-            '{{ url_for("api_post", id=id) }}'
-        ).then((res) => res.json());
+        fetched = await fetch('{{ url_for("api_post", id=id) }}').then((res) =>
+            res.json()
+        );
         return fetched;
     }
 
