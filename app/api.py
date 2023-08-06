@@ -322,21 +322,31 @@ def api_comments_all():
 
 
 @app.route('/api/latest_posts/', methods=["GET"])
-@app.route('/api/latest_posts/<amount>', methods=["GET"])
-def api_latest_posts(amount=5):
+def api_latest_posts():
     """
     Get latest posts
-    :param amount: amount of posts to get, default 5
     :return: json
     """
 
-    posts = Post.query.order_by(Post.timestamp.desc()).limit(str(amount)).all()
+    amount = request.args.get('amount', 5)
+    offset = request.args.get('offset', None)
+
+    if offset: offset = int(offset)
+    print(offset, amount)
+    if offset and offset != 1: offset = int(offset)+1
+    elif offset == 1: amount = 0; offset = 0
+    else: offset = 0
+    print(offset, amount)
+
+    # Get posts from db starting at offset (earliest loaded post ID) and going backwards
+    posts = Post.query.order_by(Post.id.desc()).offset(offset).limit(amount).all()
 
     response = [{
             'id': post.id,
             'header': post.header,
             'body': post.body,
             'timestamp': post.timestamp,
+            'username': post.author.username,
             'user_id': post.user_id,
             'comments': {
                 comment.id: {

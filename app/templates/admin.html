@@ -45,61 +45,24 @@
         </form>
     </div>
     <table
-        class="w-full border-2 border-black grid-cols-3 sm:col-span-2 md:col-start-3 md:col-span-2 lg:col-span-3 xl:col-span-4 bg-accent"
+        class="w-full border-2 border-black grid-cols-3 sm:col-span-2 md:col-start-3 md:col-span-2 lg:col-span-3 xl:col-span-4 bg-accent" id="dbPreview"
     >
-        <tr class="">
-            <th class="border-r-2 border-b-2 border-black">Tables</th>
-            <td class="border-b-2 border-black">
-                {% autoescape false %} {{ tableText.upper() }} {% endautoescape
-                %}
-            </td>
-        </tr>
-        <!-- Display each table w/ entry for small database -->
-        {% for table in tables %}
-        <tr class="">
-            <th class="border-r-2 border-b-2 border-black">{{ table }}</th>
-            <td class="border-b-2 border-black">
-                {% for item in tableModels[table].query.paginate(page=1,
-                per_page=5, error_out=False) %} {% if
-                table=='collection_for_posts' %}
-                <a
-                    href="{{ url_for('admin', table=table, collection=item.collection_id, post=item.post_id) }}"
-                    >{{ item }}</a
-                >
-                | {% else %}
-                <a href="{{ url_for('admin', table=table, view=item.id) }}"
-                    >{{ item }}</a
-                >
-                | {% endif %} {% endfor %}
-            </td>
-        </tr>
-        {% endfor %}
+
     </table>
     <br />
     <div id="inspectDBEntryContainer" class="col-span-full">
-        {% if inspection['table'] %}
-        <table
-            id="inspectionTable"
-            class="border-2 w-full bg-accent border-black"
-        >
-            <tr id="inspectionObject">
-                <!-- inspect entry data -->
-                <td>{{ columns }}</td>
-                <th class="text-left">{{ inspection['selection'] }}</th>
-            </tr>
-            {% for column in inspection['columns'] %}
-            <tr id="{{ column }}" class="border-t-2 border-black">
-                <th>{{ column }}</th>
-                <td>{{ inspection['selection'][column] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% endif %}
+
     </div>
     <br />
 </div>
 <script>
-    const data = marked.parse(`{{ post.body }}`);
+
+    
+
+    const data = marked.parse(temp, {
+        mangle: false,
+        headerIds: false,
+    });
     const temp = `
                 <tr>
                     <th class="border-r-2 border-b-2 border-black">{{ table }}</th>

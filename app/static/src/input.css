@@ -21,11 +21,11 @@ button[data-saving="true"] {
 }
 
 button[data-saved="true"] {
-    cursor: wait;
+    cursor: default;
     content: "Saved!";
 }
 
 button[data-saved="false"] {
-    cursor: wait;
+    cursor: pointer;
     content: "Save";
 }

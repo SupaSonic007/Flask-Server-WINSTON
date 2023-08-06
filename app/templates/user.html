@@ -77,7 +77,7 @@
             id="postContainer"
         >
             {% if user.posts | length > 0 %} {% for post in user.posts %}
-            <a href="{{ url_for('winstogram', id=post.id) }}">
+            <a href="{{ url_for('winstogram', post_id=post.id) }}">
                 <div class="outline rounded bg-accent p-5">
                     <div id="header">
                         <h2 class="text-2xl truncate">

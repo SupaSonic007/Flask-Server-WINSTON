@@ -109,6 +109,7 @@ def stream():
 
 @app.route('/user/<id>')
 def user(id=current_user.id if current_user else 1):
+    
     user = User.query.get(id)
     # You can't view a user that doesn't exist
     if not user:

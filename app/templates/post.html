@@ -18,26 +18,30 @@
         if (await checkExistenceInCollections()) {
             save.classList.add('disabled');
             save.dataset.saved = 'true';
+            save.textContent = 'Saved!';
             return;
         } else {
             save.dataset.saved = 'false';
+            save.textContent = 'Save';
         }
-
+        
         if (save.classList.contains('disabled') == false) {
             save.addEventListener('click', async function () {
                 save.dataset.saving = 'true';
+                save.textContent = 'Saving...';
                 const time = new Date().getTime();
                 await fetch("{{ url_for('save_post', id=id) }}", {
                     method: 'POST',
                 });
-
+                
                 const time2 = new Date().getTime();
                 if (time2 - time < 1000) {
                     await wait(1000 - (time2 - time));
                 }
-
+                
                 save.classList.add('disabled');
                 save.dataset.saved = 'true';
+                save.textContent = 'Saved!';
                 save.removeEventListener('click', this);
             });
         }
@@ -63,7 +67,7 @@
                     >
                     <br>
                     <i class="opacity-50 text-xl" id="saveButton">
-                        <button id="save">Save</button>
+                        <button id="save"></button>
                     </i>
                 </h2>
             </div>
@@ -74,9 +78,6 @@
                     headerIds: false,
                 })} {% endautoescape %}
             </div>`
-            .replaceAll('postHeader', header)
-            .replaceAll('postBody', body)
-            .replaceAll('postAuthor', author);
         const postContainer = document.getElementById('postContainer');
         postContainer.innerHTML = template;
     }
