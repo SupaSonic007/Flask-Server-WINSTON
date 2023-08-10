@@ -92,6 +92,8 @@ def api_users(id):
     :return: json
     """
 
+    avatar_size = request.args.get('avatar', 128)
+
     if not id:
         return jsonify(response="Invalid request", status='error'), 400
 
@@ -103,24 +105,26 @@ def api_users(id):
     response = {
         'id': user.id,
         'username': user.username,
-        'posts': {
-            post.id: {
-                'id': post.id,
-                'header': post.header,
-                'body': post.body,
-                'timestamp': post.timestamp,
-                'user_id': post.user_id,
-                'comments': {
-                    comment.id: {
-                        'id': comment.id,
-                        'body': comment.body,
-                        'timestamp': comment.timestamp,
-                        'user_id': comment.user_id,
-                        'post_id': comment.post_id,
-                    } for comment in post.comments.all()
-                },
-            } for post in user.posts.all()
-        },
+        'time_created': user.time_created,
+        'bio': user.bio,
+        'avatar': user.avatar(avatar_size or 128),
+        'posts': [{
+            'id': post.id,
+            'header': post.header,
+            'body': post.body,
+            'timestamp': post.timestamp,
+            'user_id': post.user_id,
+            'username': post.author.username,
+            'comments': {
+                comment.id: {
+                    'id': comment.id,
+                    'body': comment.body,
+                    'timestamp': comment.timestamp,
+                    'user_id': comment.user_id,
+                    'post_id': comment.post_id,
+                } for comment in post.comments.all()
+            },
+        } for post in user.posts.all()],
         'comments': {
             comment.id: {
                 'id': comment.id,
@@ -130,7 +134,7 @@ def api_users(id):
                 'post_id': comment.post_id,
             } for comment in user.comments.all()
         }
-    }, 200
+    }
 
     return response, 200
 
@@ -331,24 +335,28 @@ def api_latest_posts():
     amount = request.args.get('amount', 5)
     offset = request.args.get('offset', None)
 
-    if offset: offset = int(offset)
-    print(offset, amount)
-    if offset and offset != 1: offset = int(offset)+1
-    elif offset == 1: amount = 0; offset = 0
-    else: offset = 0
-    print(offset, amount)
+    if offset:
+        offset = int(offset)
+    if offset and offset != 1:
+        offset -= 1
+    elif offset == 1:
+        amount = 0
+        offset = 0
+    else:
+        offset = Post.query.count()
+
 
     # Get posts from db starting at offset (earliest loaded post ID) and going backwards
-    posts = Post.query.order_by(Post.id.desc()).offset(offset).limit(amount).all()
+    posts = Post.query.filter(Post.id <= offset).order_by(Post.id.desc()).limit(amount).all()
 
     response = [{
-            'id': post.id,
-            'header': post.header,
-            'body': post.body,
-            'timestamp': post.timestamp,
-            'username': post.author.username,
-            'user_id': post.user_id,
-            'comments': {
+        'id': post.id,
+        'header': post.header,
+        'body': post.body,
+        'timestamp': post.timestamp,
+        'username': post.author.username,
+        'user_id': post.user_id,
+        'comments': {
                 comment.id: {
                     'id': comment.id,
                     'body': comment.body,
@@ -356,8 +364,8 @@ def api_latest_posts():
                     'user_id': comment.user_id,
                     'post_id': comment.post_id,
                 } for comment in post.comments.all()
-            },
-        } for post in posts
+                },
+    } for post in posts
     ]
     return response, 200
 

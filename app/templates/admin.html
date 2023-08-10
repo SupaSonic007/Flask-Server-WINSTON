@@ -63,24 +63,6 @@
         mangle: false,
         headerIds: false,
     });
-    const temp = `
-                <tr>
-                    <th class="border-r-2 border-b-2 border-black">{{ table }}</th>
-                    <td class="border-b-2 border-black">
-                        {% for item in tableModels[table].query.paginate(page=1,
-                        per_page=5, error_out=False) %} {% if
-                        table=='collection_for_posts' %}
-                        <a
-                            href="{{ url_for('admin', table=table, collection=item.collection_id, post=item.post_id) }}"
-                            >{{ item }}</a
-                        >
-                        | {% else %}
-                        <a href="{{ url_for('admin', table=table, view=item.id) }}"
-                            >{{ item }}</a
-                        >
-                        | {% endif %} {% endfor %}
-                    </td>
-                </tr>
-                `;
+    
 </script>
 {% endblock %}

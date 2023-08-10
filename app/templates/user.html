@@ -1,137 +1,90 @@
 {% extends "base.html" %} {% block meta %}
 <meta name="title" content="{{ user.username }}'s Profile" />
 <meta name="description" content="The profile page of {{ user.username }}" />
+{% endblock %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 {% endblock %} {% block content %}
-<div
-    class="lg:w-[60rem] xl:w-[72rem] mx-auto outline rounded bg-main p-5"
-    id="postContainer"
+
+<main
+    class="px-2 sm:px-5 lg:space-x-10 justify-around space-y-10 lg:space-y-0 flex-row flex-wrap md:h-[calc(100vh-9rem)] hidden"
 >
-    <div class="outline rounded bg-accent p-5">
-        <div
-            id="profile"
-            class="grid grid-cols-1 p-3 sm:p-0 sm:grid-cols-2 md:grid-cols-3"
-        >
-            <div class="grid grid-cols-2 col-span-2">
-                <img
-                    src="{{ user.avatar(128) }}"
-                    class="mx-auto rounded outline"
-                />
-                <div id="information">
-                    <h2 class="text-3xl text-center">
-                        <b>{{ user.username }}</b>
-                    </h2>
-                    <p>
-                        <br />
-                        {% if user.bio %} {{ user.bio }} {% else %} No bio yet.
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-            <!-- Only 'your mum' can see the message on their own page -->
-            {% if current_user.is_active %} {% if user.username == "your mum"
-            and current_user.username == "your mum" %}
-            <h1 class="text-3xl">
-                <b
-                    >I'm keeping an eye on this account. Don't cause havoc
-                    now.</b
-                >
-            </h1>
-            {% endif %} {% endif %}{% if user.username == current_user.username
-            %}
-            <div
-                class="p-5 h-full align-middle md:border-black md:border-l-2 md:text-right"
-            >
-                <a
-                    href="{{ url_for('edit_profile') }}"
-                    class="text-blue-400 underline w-min md:col-start-3"
-                    >Edit Profile</a
-                >
-                <br />
-                <br />
-                <form method="post" action="{{ url_for('logout') }}" novalidate>
-                    <button
-                        typ="submit"
-                        class="text-blue-400 underline w-min md:col-start-3"
-                    >
-                        Logout
-                    </button>
-                </form>
-            </div>
-            {% endif %}
+    <div id="userInfo" class="outline w-full lg:w-2/5 flex flex-wrap content-start">
+        <img
+            id="avatar"
+            class="m-5 w-[128px] h-[128px] outline rounded-full mx-auto"
+        />
+
+        <div id="userMeta" class="sm:w-1/2 m-5 h-min">
+            <p class="text-center sm:text-left underline"><b id="username"></b></p>
             <br />
+            <p>Joined <span id="time_created"></span></p>
         </div>
+        <p class="w-full m-5">Bio: <span id="bio"></span></p>
     </div>
-</div>
-<div
-    id="postsAndCollections"
-    class="grid grid-cols-2 lg:w-[60rem] xl:w-[72rem] mx-auto gap-4"
->
-    <div
-        id="posts"
-        class="col-start-1 col-span-2 lg:col-span-{{ '1' if current_user.is_active and user.username == current_user.username else '2' }}"
-    >
-        <br />
-        <h2 class="mb-5"><b class="text-4xl underline"> Posts </b></h2>
-        <div
-            class="mx-auto outline rounded bg-maintwo p-3"
-            id="postContainer"
-        >
-            {% if user.posts | length > 0 %} {% for post in user.posts %}
-            <a href="{{ url_for('winstogram', post_id=post.id) }}">
-                <div class="outline rounded bg-accent p-5">
-                    <div id="header">
-                        <h2 class="text-2xl truncate">
-                            <b>{{ post.header }}</b>
-                        </h2>
-                        <br />
-                    </div>
-                    <div class="px-4 truncate" id="body">{{ post.body }}</div>
-                </div>
-            </a>
-            <br />
-            {% endfor %} {% else %}
-            <div class="outline rounded bg-accent p-5 truncate">
-                <div id="header">
-                    <h2 class="text-2xl">
-                        <b>No Posts...</b>
-                    </h2>
-                </div>
-            </div>
-            {% endif %}
-        </div>
+
+    <div id="userPosts" class="outline w-full lg:w-1/2 overflow-y-scroll h-full">
+        <p class="mt-5 mx-5"><b>Posts</b></p>
+        <div id="posts" class="flex flex-wrap lg:w-full"></div>
     </div>
-    {% if current_user.is_active %} {% if user.username == current_user.username
-    %}
-    <div id="collections" class="col-start-1 col-span-2 lg:col-span-1">
-        <br />
-        <h2 class="mb-5"><b class="text-4xl underline"> Saved Posts </b></h2>
-        <div class="mx-auto outline rounded bg-mainthree p-3" id="saveContainer">
-            {% if user.collections[0].posts | length > 0 %} {% for post in
-            user.collections[0].posts %}
-            <a href="{{ url_for('winstogram', id=post.id) }}">
-                <div class="outline rounded bg-accent p-5 truncate">
-                    <div id="header">
-                        <h2 class="text-2xl">
-                            <b>{{ post.header }}</b>
-                        </h2>
-                        <br />
-                    </div>
-                    <div class="px-4 truncate" id="body">{{ post.body }}</div>
-                </div>
-            </a>
-            <br />
-            {% endfor %} {% else %}
-            <div class="outline rounded bg-accent p-5 truncate">
-                <div id="header">
-                    <h2 class="text-2xl">
-                        <b>No Posts...</b>
-                    </h2>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %} {% endif %}
-</div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        
+        const avatar = document.getElementById('avatar');
+        const username = document.getElementById('username');
+        const time_created = document.getElementById('time_created');
+        const bio = document.getElementById('bio');
+
+        const user = await getUser('{{ user }}');
+
+        username.innerHTML = user.username;
+        time_created.innerHTML = user.time_created;
+        bio.innerHTML = user.bio;
+        
+        avatar.src = user.avatar;
+
+        posts = await user.posts;
+
+        posts.reverse().forEach((post) => {
+
+            a = document.createElement('a');
+            a.id = post.id;
+            a.href = `{{ url_for('winstogram')}}/${post.id}`;
+            a.className =
+                'min-w-[calc(100%-2.5rem)] max-w-[calc(100%-2.5rem)] mx-5 my-3 p-2 outline w-full';
+            
+            header = document.createElement('span');
+            header.id = 'header';
+            header.className = 'truncate block';
+            header.innerHTML = `<b>${post.header}</b>`;
+            a.appendChild(header);
+
+            author = document.createElement('span');
+            author.id = 'author';
+            author.className = 'truncate block';
+            author.innerHTML = `<i>by ${post.username} ${moment(post.timestamp).fromNow()}</i>`;
+            a.appendChild(author);
+
+            body = document.createElement('span');
+            body.id = 'body';
+            body.className = 'truncate block';
+            body.innerHTML = marked.parse(post.body.replaceAll('\n', ' '), { mangle: false, headerIds: false });
+            a.appendChild(body);
+
+            document.getElementById('posts').appendChild(a);
+
+            const main = document.getElementsByTagName('main').item(0);
+            main.classList.remove('hidden');
+            main.classList.add('flex');
+        });
+    });
+
+    async function getUser(id) {
+        const response = await fetch(`/api/users/${id}`);
+        const user = await response.json();
+        return user;
+    }
+</script>
 
 {% endblock %}

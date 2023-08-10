@@ -53,40 +53,12 @@
         const container = document.getElementById('postsContainer');
         posts = await getLatestPosts();
 
-        for (post of posts) {
-            var temp = `<a href="{{ url_for('winstogram')}}/${post.id}">
-                                <div class="outline bg-accent rounded p-5" id="${
-                                    post.id
-                                }">
-                                    <div class="truncate" id="header">
-                                        {% autoescape false %}
-                                        <b>${post.header}</b>
-                                        <br /><i
-                                        >by ${post.username}
-                                        ${moment(post.timestamp).fromNow()}</i
-                                        >
-                                        {% endautoescape %}
-                                        </div>
-                                        <div class="px-4 truncate" id="body">
-                                            ${marked.parse(
-                                                post.body.replaceAll('\n', ' '),
-                                                {
-                                                    mangle: false,
-                                                    headerIds: false,
-                                                }
-                                            )}
-                                            </div>
-                                            </div>
-                                            </a>
-                                            <br>`;
-            document.getElementById('postsContainer').innerHTML += temp;
-        }
+        addPosts(posts, container)
 
         container.addEventListener('scroll', async () => {
-
             if (
                 Math.round(container.scrollTop + container.clientHeight) >=
-                container.scrollHeight - 50
+                container.scrollHeight
             ) {
                 var newPosts = await loadPreviousPosts(
                     posts[posts.length - 1].id
@@ -94,36 +66,25 @@
 
                 posts.push(...newPosts);
 
-                for (post of newPosts) {
-                    var temp = `<a href="{{ url_for('winstogram')}}/${post.id}">
-                        <div class="outline bg-accent rounded p-5" id="${
-                            post.id
-                        }">
-                            <div class="truncate" id="header">
-                                {% autoescape false %}
-                                <b>${post.header}</b>
-                                <br /><i
-                                >by ${post.username}
-                                ${moment(post.timestamp).fromNow()}</i
-                                >
-                                {% endautoescape %}
-                                </div>
-                                <div class="px-4 truncate" id="body">
-                                    ${marked.parse(
-                                        post.body.replaceAll('\n', ' '),
-                                        {
-                                            mangle: false,
-                                            headerIds: false,
-                                        }
-                                    )}
-                                    </div>
-                                    </div>
-                                    </a>
-                                    <br>`;
-                    document.getElementById('postsContainer').innerHTML += temp;
-                }
+                addPosts(newPosts, container);
             }
         });
+    
+        window.addEventListener('scroll', async () => {
+            // if the user is at the bottom of the page
+            if (
+                window.innerHeight + window.scrollY >=
+                document.body.offsetHeight
+            ) {
+                var newPosts = await loadPreviousPosts(
+                    posts[posts.length - 1].id
+                );
+
+                posts.push(...newPosts);
+
+                addPosts(newPosts, container);
+            }
+        })
     });
 
     async function getLatestPosts() {
@@ -138,6 +99,43 @@
         );
         const posts = await response.json();
         return posts;
+    }
+
+    // add posts to the page fucntion
+    function addPosts(posts, container) {
+        for (post of posts) {
+            a = document.createElement('a');
+            a.href = `{{ url_for('winstogram')}}/${post.id}`;
+
+            div = document.createElement('div');
+            div.className = 'outline bg-accent rounded p-5';
+            div.id = post.id;
+
+            header = document.createElement('div');
+            header.className = 'truncate';
+            header.id = 'header';
+            header.innerHTML = `<b>${post.header}</b><br /><i>by ${
+                post.username
+            } ${moment(post.timestamp).fromNow()}</i>`;
+            div.appendChild(header);
+
+            body = document.createElement('div');
+            body.className = 'px-4 truncate';
+            body.id = 'body';
+            body.innerHTML = marked.parse(post.body.replaceAll('\n', ' '), {
+                mangle: false,
+                headerIds: false,
+            });
+            div.appendChild(body);
+
+            a.appendChild(div);
+
+            container.appendChild(a);
+
+            br = document.createElement('br');
+
+            container.appendChild(br);
+        }
     }
 </script>
 

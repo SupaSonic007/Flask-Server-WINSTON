@@ -12,8 +12,8 @@ from app.winston import sendToPi
 
 import json
 
-
 def gen():
+    
     while True:
 
         time.sleep(0.02)
@@ -22,6 +22,12 @@ def gen():
             img = open('D:/img.jpg', 'rb').read()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+        
+        elif open('D:/img_running.txt', 'r').read() == "0":
+            img = open('app/static/images/placeholder.jpg', 'rb').read()
+            return (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+        
         else:
             yield (b'--frame\r\n')
 
@@ -50,8 +56,6 @@ def about():
 @app.route('/posts/<post_id>', methods=['GET', 'POST'])
 @app.route('/posts', methods=['GET', 'POST'])
 def winstogram(post_id=None):
-
-    posts_list = []
 
     if post_id:
         save_form = SaveForm()
@@ -110,19 +114,20 @@ def stream():
 @app.route('/user/<id>')
 def user(id=current_user.id if current_user else 1):
     
-    user = User.query.get(id)
     # You can't view a user that doesn't exist
+    user = User.query.get(id)
+
     if not user:
         return render_template(
             'errors/404.html',
             title='Page not found!',
             app=app
-        )
+        ), 404
 
     return render_template(
         'user.html',
         title=f'{user.username}',
-        user=user,
+        user=id,
         current_user=current_user,
         app=app
     )
@@ -347,3 +352,12 @@ def controller():
         title='Page not found!',
         app=app
     ), 404
+
+@app.route('/posts/saved')
+def saved_posts():
+    return render_template(
+        'index.html',
+        title='Saved Posts',
+        app=app,
+        current_user=current_user
+)

@@ -18,9 +18,9 @@ class User(db.Model, UserMixin):
     password_hashed = db.Column(db.String(128))
     bio = db.Column(db.String(512))
     collections = db.relationship(
-        'Collection', backref='collection_author')
-    posts = db.relationship('Post', backref='author')
-    comments = db.relationship('Comment', backref='author')
+        'Collection', backref='collection_author', lazy='dynamic')
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
     def __repr__(self) -> str:
         return f"{self.username}"

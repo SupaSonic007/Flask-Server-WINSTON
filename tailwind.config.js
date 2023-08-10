@@ -12,6 +12,7 @@ module.exports = {
         main: '#30d2ff',
         maintwo: '#43ff59',
         mainthree: '#ff5757',
+        tertiary: '#4f4b49',
         // primary:'#fffaff',
         // secondary: '#423E3B',
         // accent: '#ffffff',
