@@ -58,6 +58,14 @@
 
         posts = await user.posts;
 
+        if (posts.length == 0) {
+            const posts = document.getElementById('posts');
+            const p = document.createElement('p');
+            p.className = 'text-center w-full';
+            p.innerHTML = 'No posts';
+            posts.appendChild(p);
+        }
+
         posts.reverse().forEach((post) => {
             a = document.createElement('a');
             a.id = post.id;

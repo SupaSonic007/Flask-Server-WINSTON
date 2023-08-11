@@ -4,13 +4,15 @@
 <br />
 <form action="" method="post" enctype="multipart/form-data" novalidate>
     {{ form.hidden_tag() }}
-    <p>
+    <p class="inline-block">
         {{ form.username.label }}<br />
         {{ form.username(class_="px-1 mx-auto border border-black rounded") }} {% for
         error in form.username.errors %}
         <span class="text-red-500">[{{error}}]</span>
         {% endfor %}
     </p>
+    <!-- Edit Image Link to Gravatar -->
+    <a href="https://en.gravatar.com/" class="inline-block border border-black rounded bg-accent px-5 hover:cursor-pointer">Edit image on Gravatar</a>
     <br />
     <p>
         {{ form.bio.label }}<br />
