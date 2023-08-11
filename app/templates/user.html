@@ -8,21 +8,29 @@
 <main
     class="px-2 sm:px-5 lg:space-x-10 justify-around space-y-10 lg:space-y-0 flex-row flex-wrap md:h-[calc(100vh-9rem)] hidden"
 >
-    <div id="userInfo" class="outline w-full lg:w-2/5 flex flex-wrap content-start">
+    <div
+        id="userInfo"
+        class="outline w-full lg:w-2/5 flex flex-wrap content-start rounded-md"
+    >
         <img
             id="avatar"
             class="m-5 w-[128px] h-[128px] outline rounded-full mx-auto"
         />
 
         <div id="userMeta" class="sm:w-1/2 m-5 h-min">
-            <p class="text-center sm:text-left underline"><b id="username"></b></p>
+            <p class="text-center sm:text-left underline">
+                <b id="username"></b>
+            </p>
             <br />
             <p>Joined <span id="time_created"></span></p>
         </div>
-        <p class="w-full m-5">Bio: <span id="bio"></span></p>
+        <p class="w-full m-5"><span id="bio"></span></p>
     </div>
 
-    <div id="userPosts" class="outline w-full lg:w-1/2 overflow-y-scroll h-full">
+    <div
+        id="userPosts"
+        class="outline w-full lg:w-1/2 overflow-y-scroll h-full rounded-md"
+    >
         <p class="mt-5 mx-5"><b>Posts</b></p>
         <div id="posts" class="flex flex-wrap lg:w-full"></div>
     </div>
@@ -30,7 +38,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        
         const avatar = document.getElementById('avatar');
         const username = document.getElementById('username');
         const time_created = document.getElementById('time_created');
@@ -40,20 +47,24 @@
 
         username.innerHTML = user.username;
         time_created.innerHTML = user.time_created;
-        bio.innerHTML = user.bio;
         
+        if (user.bio != null) {
+            bio.innerHTML = user.bio.replaceAll('\n', '<br />');;
+        } else {
+            bio.innerHTML = 'No bio';
+        }
+
         avatar.src = user.avatar;
 
         posts = await user.posts;
 
         posts.reverse().forEach((post) => {
-
             a = document.createElement('a');
             a.id = post.id;
             a.href = `{{ url_for('winstogram')}}/${post.id}`;
             a.className =
-                'min-w-[calc(100%-2.5rem)] max-w-[calc(100%-2.5rem)] mx-5 my-3 p-2 outline w-full';
-            
+                'min-w-[calc(100%-2.5rem)] max-w-[calc(100%-2.5rem)] mx-5 my-3 p-2 outline w-full rounded-md';
+
             header = document.createElement('span');
             header.id = 'header';
             header.className = 'truncate block';
@@ -63,21 +74,39 @@
             author = document.createElement('span');
             author.id = 'author';
             author.className = 'truncate block';
-            author.innerHTML = `<i>by ${post.username} ${moment(post.timestamp).fromNow()}</i>`;
+            author.innerHTML = `<i>by ${post.username} ${moment(
+                post.timestamp
+            ).fromNow()}</i>`;
             a.appendChild(author);
 
             body = document.createElement('span');
             body.id = 'body';
             body.className = 'truncate block';
-            body.innerHTML = marked.parse(post.body.replaceAll('\n', ' '), { mangle: false, headerIds: false });
+            body.innerHTML = marked.parse(post.body.replaceAll('\n', ' '), {
+                mangle: false,
+                headerIds: false,
+            });
             a.appendChild(body);
 
             document.getElementById('posts').appendChild(a);
-
-            const main = document.getElementsByTagName('main').item(0);
-            main.classList.remove('hidden');
-            main.classList.add('flex');
         });
+
+        const main = document.getElementsByTagName('main').item(0);
+        main.classList.remove('hidden');
+        main.classList.add('flex');
+
+        if (user.username == '{{ current_user.username }}') {
+            var edit_profile = document.createElement('a');
+            edit_profile.href = `{{ url_for('edit_profile') }}`;
+            edit_profile.className =
+                'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer';
+            edit_profile.innerText = 'Edit Profile';
+
+            var br = document.createElement('br');
+
+            document.getElementById('userMeta').appendChild(br);
+            document.getElementById('userMeta').appendChild(edit_profile);
+        }
     });
 
     async function getUser(id) {
