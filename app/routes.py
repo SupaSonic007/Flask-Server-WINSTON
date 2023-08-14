@@ -1,3 +1,4 @@
+import json
 import time
 
 from flask import Response, flash, redirect, render_template, request, url_for
@@ -5,12 +6,14 @@ from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy import text
 
 from app import app, db
-from app.forms import (AdminSQLForm, EditProfileForm, LoginForm, PostForm,
-                       RegistrationForm, SaveForm, ControllerForm)
-from app.models import Collection, CollectionForPosts, Post, User, Comment, Like
+from app.email import send_password_reset_email
+from app.forms import (AdminSQLForm, ControllerForm, EditProfileForm,
+                       ForgotPasswordForm, LoginForm, PostForm,
+                       RegistrationForm, ResetPasswordForm, SaveForm)
+from app.models import (Collection, CollectionForPosts, Comment, Like, Post,
+                        User)
 from app.winston import sendToPi
 
-import json
 
 def gen():
     
@@ -197,28 +200,6 @@ def admin():
     if current_user.email in app.config['ADMINS']:
 
         sql_form = AdminSQLForm()
-        tables = list(db.metadata.tables.keys())
-        tableModels = {"user": User, "post": Post, "collection": Collection,
-                       "collection_for_posts": CollectionForPosts}
-
-        table = None
-        view = None
-        collection = None
-        post = None
-        selection = None
-        # Inspect a database entry
-        if request.args.listvalues():
-            table = request.args.get('table')
-            view = request.args.get('view')
-            collection = request.args.get('collection')
-            post = request.args.get('post')
-
-            if table == 'collection_for_posts':
-                selection = tableModels[table].query.filter(
-                    tableModels[table].collection_id == collection).filter(tableModels[table].post_id == post).first()
-            else:
-                selection = tableModels[table].query.filter(
-                    tableModels[table].id == view).first()
 
         if sql_form.validate_on_submit():
             sql = sql_form.query.data
@@ -236,7 +217,6 @@ def admin():
                 results = [tuple(row) for row in results.all()]
                 flash((results))
                 return redirect('admin')
-        columns = dir(selection)
         return render_template(
             'admin.html',
             title=f"Admin Panel",
@@ -253,7 +233,7 @@ def admin():
 @app.route('/post/<id>/save', methods=["POST"])
 def save_post(id):
 
-    collections = current_user.collections
+    collections = current_user.collections.all()
     if len(collections) == 0:
         collection = Collection(
             user_id=current_user.id
@@ -356,8 +336,45 @@ def controller():
 @app.route('/posts/saved')
 def saved_posts():
     return render_template(
-        'index.html',
+        'collections.html',
         title='Saved Posts',
         app=app,
         current_user=current_user
 )
+
+@app.route('/forgot_password', methods=["GET", "POST"])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+
+        if not user:
+            flash("No user found with that email")
+            return redirect(url_for('forgot_password'))
+        send_password_reset_email(user)
+        flash("Password reset email sent!")
+        return redirect(url_for('login'))
+
+    return render_template(
+        'forgot_password.html',
+        title='Forgot Password',
+        app=app,
+        form=form
+    )
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)

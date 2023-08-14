@@ -23,7 +23,7 @@
     <br />
     <p>
         {{ form.submit(class_="border p-1 border-black rounded
-        bg-primary") }}
+        bg-accent") }}
     </p>
     <br />
     <p>
@@ -34,7 +34,7 @@
     </p>
     <p>
         Forgot Your Password?
-        <a href="#" class="text-blue-400 underline">Click to Reset It</a>
+        <a href="{{ url_for('forgot_password') }}" class="text-blue-400 underline">Click to Reset It</a>
     </p>
 </form>
 {% endblock %}

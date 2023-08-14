@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
+from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
@@ -15,6 +16,7 @@ login.init_app(app)
 login.login_view = 'login'
 login.login_message = 'Please log in to access this page.'
 moment = Moment(app)
+mail = Mail(app)
 
 from app import api, errors, models, routes, winston
 

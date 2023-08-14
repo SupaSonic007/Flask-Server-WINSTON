@@ -6,13 +6,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary:'#fffaff',
+        primary:'#f3eef3',
         secondary: '#423E3B',
         accent: '#ffffff',
         main: '#30d2ff',
         maintwo: '#43ff59',
         mainthree: '#ff5757',
-        tertiary: '#4f4b49',
+        lightSecondary: '#4f4b49',
+        tertiary: '#f9f9f9',
         // primary:'#fffaff',
         // secondary: '#423E3B',
         // accent: '#ffffff',

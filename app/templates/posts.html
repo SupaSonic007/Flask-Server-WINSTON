@@ -6,7 +6,7 @@
     class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4 md:h-[calc(100vh-9rem)] sm:p-5"
 >
     {% if current_user.is_active %}
-    <div class="col-span-1 bg-maintwo outline p-5 rounded" id="form">
+    <div class="col-span-1 bg-accent outline p-5 rounded" id="form">
         <form
             id="newPostForm"
             action=""
@@ -42,7 +42,7 @@
     {% endif %}
 
     <div
-        class="{{ 'col-span-full' if not current_user.is_active else 'sm:col-span-2 md:col-span-2 lg:col-span-3 xl:col-span-4' }} bg-main overflow-y-auto outline p-5 rounded"
+        class="{{ 'col-span-full' if not current_user.is_active else 'sm:col-span-2 md:col-span-2 lg:col-span-3 xl:col-span-4' }} bg-accent overflow-y-auto outline p-5 rounded"
         id="postsContainer"
     ></div>
 </div>

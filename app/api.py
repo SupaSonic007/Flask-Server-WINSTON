@@ -1,6 +1,7 @@
 import json
 
 from flask import request, jsonify
+from flask_login import current_user, login_required
 
 from app import app, db
 from app.models import Collection, Comment, Post, User
@@ -343,11 +344,11 @@ def api_latest_posts():
         amount = 0
         offset = 0
     else:
-        offset = Post.query.count()
-
+        offset = Post.query.order_by(Post.id.desc()).first().id
 
     # Get posts from db starting at offset (earliest loaded post ID) and going backwards
-    posts = Post.query.filter(Post.id <= offset).order_by(Post.id.desc()).limit(amount).all()
+    posts = Post.query.filter(Post.id <= offset).order_by(
+        Post.id.desc()).limit(amount).all()
 
     response = [{
         'id': post.id,
@@ -388,3 +389,128 @@ def api_check_existence_in_collections(id=None):
         return jsonify(response=True, status='success'), 200
 
     return jsonify(response=False, status='success'), 200
+
+
+@login_required
+@app.route('/api/table/', methods=['GET'])
+def api_table_data():
+    """
+    Get data for a table specified by table_name
+    :return: json
+    """
+
+    table_name = request.args.get('table_name', None)
+
+    if not current_user.admin:
+        return jsonify(response="Unauthorized", status='error'), 401
+
+    if not table_name:
+        return jsonify(response="Invalid request", status='error'), 400
+
+    match table_name:
+
+        case 'user':
+            users = User.query.all()
+            # First Layer Data (user immediate data, no recursion into other)
+            response = [{
+                user.id: {
+                    'id': user.id,
+                    'username': user.username,
+                    'bio': user.bio,
+                    'time_created': user.time_created,
+                    'collections': {
+                        collection.id: {
+                            'id': collection.id,
+                            'user_id': collection.user_id,
+                            'posts': {
+                                post.id: {
+                                    'id': post.id,
+                                    'header': post.header,
+                                    'body': post.body,
+                                    'timestamp': post.timestamp,
+                                    'user_id': post.user_id,
+                                    'username': post.author.username,
+                                    'comments': {
+                                        comment.id: {
+                                            'id': comment.id,
+                                            'body': comment.body,
+                                            'timestamp': comment.timestamp,
+                                            'user_id': comment.user_id,
+                                            'post_id': comment.post_id,
+                                        } for comment in post.comments.all()
+                                    },
+                                } for post in collection.posts.all()
+                            },
+                        } for collection in user.collections.all()
+                    },
+                }} for user in users]
+            
+            return response, 200
+
+        case 'post':
+            posts = Post.query.all()
+            response = [{
+                post.id: {
+                    'id': post.id,
+                    'header': post.header,
+                    'body': post.body,
+                    'timestamp': post.timestamp,
+                    'user_id': post.user_id,
+                    'username': post.author.username,
+                    'comments': {
+                        comment.id: {
+                            'id': comment.id,
+                            'body': comment.body,
+                            'timestamp': comment.timestamp,
+                            'user_id': comment.user_id,
+                            'post_id': comment.post_id,
+                        } for comment in post.comments.all()
+                    },
+                }
+            } for post in posts]
+
+            return response, 200
+
+        case 'comment':
+            comments = Comment.query.all()
+            response = [{
+                comment.id: {
+                    'id': comment.id,
+                    'body': comment.body,
+                    'timestamp': comment.timestamp,
+                    'user_id': comment.user_id,
+                    'post_id': comment.post_id,
+                }
+            } for comment in comments]
+
+            return response, 200
+
+        case 'collection':
+            collections = Collection.query.all()
+            response = [{
+                collection.id: {
+                    'id': collection.id,
+                    'user_id': collection.user_id,
+                    'posts': {
+                        post.id: {
+                            'id': post.id,
+                            'header': post.header,
+                            'body': post.body,
+                            'timestamp': post.timestamp,
+                            'user_id': post.user_id,
+                            'username': post.author.username,
+                            'comments': {
+                                comment.id: {
+                                    'id': comment.id,
+                                    'body': comment.body,
+                                    'timestamp': comment.timestamp,
+                                    'user_id': comment.user_id,
+                                    'post_id': comment.post_id,
+                                } for comment in post.comments.all()
+                            },
+                        } for post in collection.posts.all()
+                    },
+                }
+            } for collection in collections]
+
+            return response, 200

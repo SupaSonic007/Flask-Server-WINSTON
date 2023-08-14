@@ -10,7 +10,7 @@
 >
     <div
         id="userInfo"
-        class="outline w-full lg:w-2/5 flex flex-wrap content-start rounded-md"
+        class="outline w-full lg:w-2/5 flex flex-wrap content-start rounded-md bg-accent"
     >
         <img
             id="avatar"
@@ -29,7 +29,7 @@
 
     <div
         id="userPosts"
-        class="outline w-full lg:w-1/2 overflow-y-scroll h-full rounded-md"
+        class="outline w-full lg:w-1/2 overflow-y-scroll h-full rounded-md bg-accent"
     >
         <p class="mt-5 mx-5"><b>Posts</b></p>
         <div id="posts" class="flex flex-wrap lg:w-full"></div>
@@ -71,7 +71,7 @@
             a.id = post.id;
             a.href = `{{ url_for('winstogram')}}/${post.id}`;
             a.className =
-                'min-w-[calc(100%-2.5rem)] max-w-[calc(100%-2.5rem)] mx-5 my-3 p-2 outline w-full rounded-md';
+                'min-w-[calc(100%-2.5rem)] max-w-[calc(100%-2.5rem)] mx-5 my-3 p-2 outline w-full rounded-md bg-accent';
 
             header = document.createElement('span');
             header.id = 'header';
@@ -107,7 +107,7 @@
             var edit_profile = document.createElement('a');
             edit_profile.href = `{{ url_for('edit_profile') }}`;
             edit_profile.className =
-                'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer';
+                'border p-1 border-black rounded bg-tertiary px-5 hover:cursor-pointer';
             edit_profile.innerText = 'Edit Profile';
 
             var br = document.createElement('br');

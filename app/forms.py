@@ -23,7 +23,7 @@ class RegistrationForm(FlaskForm):
                              DataRequired(), Length(8, 32, "Password must be between 8 and 32 characters long")])
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(),
-                                       EqualTo('password')])
+                                       EqualTo('password'), Length(8, 32)])
     submit = SubmitField('Register')
 
     def validate_username(self, username) -> None:
@@ -40,7 +40,7 @@ class RegistrationForm(FlaskForm):
 class PostForm(FlaskForm):
     subject = StringField("Subject", validators=[
                           DataRequired(), Length(1, 128)])
-    body = TextAreaField("Body", validators=[DataRequired(), Length(1, 2000)])
+    body = TextAreaField("Body", validators=[DataRequired(), Length(1, 3500)])
     submit = SubmitField("Submit")
 
 
@@ -76,7 +76,22 @@ class ControllerForm(FlaskForm):
     controllerInput = StringField('Controller', validators=[DataRequired()])
     submit = SubmitField("Submit")
 
+
+class ForgotPasswordForm(FlaskForm):
+    email = StringField('Email', validators=[
+                        DataRequired(), Email("Email must be valid"), Length(5, 128, "Email must be at least 5 characters long")])
+    submit = SubmitField("Submit")
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[
+                             DataRequired(), Length(8, 32, "Password must be between 8 and 32 characters long")])
+    password2 = PasswordField(
+        'Repeat Password', validators=[DataRequired(),
+                                       EqualTo('password'), Length(8, 32)])
+    submit = SubmitField('Reset Password')
+
 def username_regex_check(username):
     regex = re.compile(r"^[\-a-z0-9_\.]+$")
     if not regex.match(username.data.lower()):
-        raise ValidationError("Invalid username. Username may not contain spaces or special characters besides '-', '_' & '.'")
+        raise ValidationError(
+            "Invalid username. Username may not contain spaces or special characters besides '-', '_' & '.'")

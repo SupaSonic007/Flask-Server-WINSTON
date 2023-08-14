@@ -45,24 +45,97 @@
         </form>
     </div>
     <table
-        class="w-full border-2 border-black grid-cols-3 sm:col-span-2 md:col-start-3 md:col-span-2 lg:col-span-3 xl:col-span-4 bg-accent" id="dbPreview"
-    >
-
-    </table>
+        class="w-full border-2 border-black grid-cols-3 sm:col-span-2 md:col-start-3 md:col-span-2 lg:col-span-3 xl:col-span-4 bg-accent"
+        id="dbPreview"
+    ></table>
     <br />
-    <div id="inspectDBEntryContainer" class="col-span-full">
-
-    </div>
+    <div id="inspectDBEntryContainer" class="col-span-full"></div>
     <br />
 </div>
 <script>
 
-    
+    const view = 0;
 
-    const data = marked.parse(temp, {
-        mangle: false,
-        headerIds: false,
+    document.addEventListener('DOMContentLoaded', async () => {
+        dbPreview = document.getElementById('dbPreview');
+
+        inspectContainer = document.getElementById('inspectDBEntryContainer');
+
+        var query = null;
+
+        if (window.location.href.includes('?')) {
+            query = window.location.href.split('?')[1].split('=')[1];
+        }
+
+        previewDB();
+
+        if (query) {
+            await createInspection(query);
+        }
     });
-    
+
+    function previewDB() {
+        tables = ['user', 'post', 'collection', 'comment'];
+
+        preview = document.getElementById('dbPreview');
+
+        tables.forEach((table) => {
+            row = document.createElement('tr');
+            row.className = 'border-2 border-black';
+
+            col1 = document.createElement('td');
+            col1.className = 'p-2 border-2 border-black';
+            col1.innerHTML = table;
+
+            col2 = document.createElement('td');
+            col2.className = 'p-2 border-2 border-black';
+            col2.innerHTML = `<a href="?table=${table}">Inspect</a>`;
+
+            row.appendChild(col1);
+            row.appendChild(col2);
+
+            preview.appendChild(row);
+        });
+    }
+
+    async function createInspection(query) {
+        inspectContainer = document.getElementById('inspectDBEntryContainer');
+
+        response = await fetch(
+            `{{ url_for('api_table_data') }}?table_name=${query}`
+        );
+
+        tableData = await response.json();
+
+        header = document.createElement('h1');
+        header.className = 'text-5xl';
+        header.innerHTML = query.charAt(0).toUpperCase() + query.slice(1);
+
+        inspectContainer.appendChild(header);
+
+        table = document.createElement('table');
+        table.className = 'w-full border-2 border-black';
+        
+        // Errors out
+        for (entry of tableData.slice(view, view+5)) {
+            row = document.createElement('tr');
+            row.className = 'border-2 border-black';
+            for (key in entry) {
+                col = document.createElement('td');
+                col.className = 'p-2 border-2 border-black';
+                col.innerText = `${parseInt(JSON.stringify(key).replaceAll('"',''))} - ${JSON.stringify(
+                    entry[key]
+                )}`;
+                console.log(key);
+
+                row.appendChild(col);
+            }
+
+            table.appendChild(row);
+        }
+
+        inspectContainer.appendChild(table);
+
+    }
 </script>
 {% endblock %}

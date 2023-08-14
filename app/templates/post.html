@@ -2,9 +2,7 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 {% endblock %} {% block content %}
 <div class="w-full">
-    <div class="lg:w-[60rem] xl:w-[72rem] mx-auto outline rounded bg-main p-5">
-        <div class="outline rounded bg-accent p-5" id="postContainer"></div>
-    </div>
+    <div class="outline rounded bg-accent p-5" id="postContainer"></div>
 </div>
 
 <script>
@@ -24,7 +22,7 @@
             save.dataset.saved = 'false';
             save.textContent = 'Save';
         }
-        
+
         if (save.classList.contains('disabled') == false) {
             save.addEventListener('click', async function () {
                 save.dataset.saving = 'true';
@@ -33,12 +31,12 @@
                 await fetch("{{ url_for('save_post', id=id) }}", {
                     method: 'POST',
                 });
-                
+
                 const time2 = new Date().getTime();
                 if (time2 - time < 1000) {
                     await wait(1000 - (time2 - time));
                 }
-                
+
                 save.classList.add('disabled');
                 save.dataset.saved = 'true';
                 save.textContent = 'Saved!';
@@ -77,7 +75,7 @@
                     mangle: false,
                     headerIds: false,
                 })} {% endautoescape %}
-            </div>`
+            </div>`;
         const postContainer = document.getElementById('postContainer');
         postContainer.innerHTML = template;
     }
