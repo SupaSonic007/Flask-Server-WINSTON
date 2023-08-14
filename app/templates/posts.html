@@ -2,8 +2,8 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 {% endblock %} {% block content %}
 
-<div
-    class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4 md:h-[calc(100vh-9rem)] sm:p-5"
+<main
+    class="grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4 md:h-[calc(100vh-9rem)] sm:p-5 hidden"
 >
     {% if current_user.is_active %}
     <div class="col-span-1 bg-accent outline p-5 rounded" id="form">
@@ -45,7 +45,7 @@
         class="{{ 'col-span-full' if not current_user.is_active else 'sm:col-span-2 md:col-span-2 lg:col-span-3 xl:col-span-4' }} bg-accent overflow-y-auto outline p-5 rounded"
         id="postsContainer"
     ></div>
-</div>
+</main>
 
 <script>
     var posts;
@@ -71,8 +71,16 @@
             }
         });
 
+        main = document.getElementsByTagName('main')[0];
+        main.classList.remove('hidden');
+        main.classList.add('grid');
+
         while (container.scrollHeight <= container.clientHeight) {
             var newPosts = await loadPreviousPosts(posts[posts.length - 1].id);
+
+            if (newPosts.length == 0) {
+                break;
+            }
 
             posts.push(...newPosts);
 
@@ -102,9 +110,9 @@
         return posts;
     }
 
-    async function loadPreviousPosts(offset) {
+    async function loadPreviousPosts(before) {
         const response = await fetch(
-            `{{ url_for('api_latest_posts') }}?offset=${offset}`
+            `{{ url_for('api_latest_posts') }}?before=${before}`
         );
         const posts = await response.json();
         return posts;

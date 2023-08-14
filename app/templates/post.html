@@ -8,25 +8,31 @@
         <h2 class="text-2xl">Comments</h2>
         <br />
         {% if current_user.is_active %}
-        <form id="commentForm" action="" method="post" autocomplete="off" novalidate>
+        <form
+            id="commentForm"
+            action=""
+            method="post"
+            autocomplete="off"
+            novalidate
+        >
             {{ form.hidden_tag() }}
             <p>
                 {{ form.comment.label }}<br />
-                {{ form.comment(rows=5, class_="px-1 border border-black rounded w-full") }} {% for error in
-                form.comment.errors %}
+                {{ form.comment(rows=5, class_="px-1 border border-black rounded
+                w-full") }} {% for error in form.comment.errors %}
                 <br />
                 <span class="text-black"><b>[{{error}}]</b></span>
                 {% endfor %}
             </p>
             <br />
             <p class="text-center md:text-start">
-                {{ form.submit(class_="border p-1 border-black rounded bg-accent w-full md:w-auto") }}
+                {{ form.submit(class_="border p-1 border-black rounded bg-accent
+                w-full md:w-auto") }}
             </p>
         </form>
         {% endif %}
         <br />
-        <div class="px-1" id="commentsContainer">
-        </div>
+        <div class="px-1" id="commentsContainer"></div>
     </div>
 
     <script>
@@ -81,7 +87,7 @@
             header.id = 'header';
 
             const headerText = document.createElement('h2');
-            headerText.classList.add('text-4xl','truncate');
+            headerText.classList.add('text-4xl', 'truncate');
 
             const headerTextBold = document.createElement('b');
             headerTextBold.textContent = post.header;
@@ -104,7 +110,7 @@
 
             const bodyDiv = document.createElement('div');
             bodyDiv.id = 'body';
-            bodyDiv.classList.add('px-4','truncate');
+            bodyDiv.classList.add('px-4', 'truncate');
             bodyDiv.innerHTML = body;
 
             saveButtonItalics.appendChild(saveButton);
@@ -122,50 +128,64 @@
             const commentsContainer =
                 document.getElementById('commentsContainer');
 
-            if (post.comments != null) {
-                for (comment of post.comments) {
-                    const commentDiv = document.createElement('div');
-                    commentDiv.classList.add(
-                        'outline',
-                        'rounded',
-                        'bg-accent',
-                        'p-5',
-                        'mb-5'
-                        );
-                        
-                    const commentHeader = document.createElement('div');
+            var comments = post.comments;
+            if (comments.length == 0) {
+                comments = [
+                    {
+                        user_id: null,
+                        timestamp: null,
+                        body: 'No comments yet!',
+                    },
+                ];
+            }
+            console.log(comments);
+            for (comment of comments) {
+                const commentDiv = document.createElement('div');
+                commentDiv.classList.add(
+                    'outline',
+                    'rounded',
+                    'bg-accent',
+                    'p-5',
+                    'mb-5'
+                );
 
-                    const commentHeaderNameA = document.createElement('a');
+                const commentBody = document.createElement('div');
+                const commentHeader = document.createElement('div');
+                const commentHeaderNameA = document.createElement('a');
+                const commentHeaderName = document.createElement('h3');
+                const commentHeaderTime = document.createElement('i');
+
+                if (
+                    comment.user_id != null &&
+                    comment.timestamp != null &&
+                    comment.body != 'No comments yet!'
+                ) {
                     commentHeaderNameA.href = `{{ url_for('user', id='') }}${comment.user_id}`;
                     commentHeaderNameA.classList.add('inline');
 
-                    const commentHeaderName = document.createElement('h3');
                     commentHeaderName.classList.add('underline', 'inline');
                     commentHeaderName.textContent = comment.username;
 
                     commentHeaderNameA.appendChild(commentHeaderName);
 
-                    const commentHeaderTime = document.createElement('i');
-                    commentHeaderTime.classList.add(
-                        'opacity-50',
-                        'inline'
-                    );
+                    commentHeaderTime.classList.add('opacity-50', 'inline');
                     commentHeaderTime.textContent = ` ${moment(
                         comment.timestamp
                     ).fromNow()}`;
 
                     commentHeader.appendChild(commentHeaderNameA);
                     commentHeader.appendChild(commentHeaderTime);
-
-                    const commentBody = document.createElement('div');
-                    commentBody.classList.add('px-4', 'pt-4');
-                    commentBody.innerHTML = comment.body;
-
                     commentDiv.appendChild(commentHeader);
-                    commentDiv.appendChild(commentBody);
-
-                    commentsContainer.appendChild(commentDiv);
+                    commentBody.classList.add('px-4', 'pt-4');
+                } else {
+                    commentBody.classList.add('underline');
                 }
+
+                commentBody.innerHTML = comment.body;
+
+                commentDiv.appendChild(commentBody);
+
+                commentsContainer.appendChild(commentDiv);
             }
         }
 

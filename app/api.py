@@ -292,7 +292,7 @@ def api_user_collections(id):
         {
             'id': collection.id,
             'user_id': collection.user_id,
-            'username': collection.user.username,
+            'username': collection.collection_author.username,
             'name': collection.name,
             'posts': [
                 {
@@ -306,6 +306,8 @@ def api_user_collections(id):
             'number_of_posts': len(collection.posts.all())
         } for collection in collections
     ]
+
+    return response, 200
 
 
 @app.route('/api/comments/<id>', methods=["GET"])
@@ -368,20 +370,20 @@ def api_latest_posts():
     """
 
     amount = request.args.get('amount', 5)
-    offset = request.args.get('offset', None)
+    before = request.args.get('before', None)
 
-    if offset:
-        offset = int(offset)
-    if offset and offset != 1:
-        offset -= 1
-    elif offset == 1:
+    if before:
+        before = int(before)
+    if before and before != 1:
+        before -= 1
+    elif before == 1:
         amount = 0
-        offset = 0
+        before = 0
     else:
-        offset = Post.query.order_by(Post.id.desc()).first().id
+        before = Post.query.order_by(Post.id.desc()).first().id
 
-    # Get posts from db starting at offset (earliest loaded post ID) and going backwards
-    posts = Post.query.filter(Post.id <= offset).order_by(
+    # Get posts from db starting at before (earliest loaded post ID) and going backwards
+    posts = Post.query.filter(Post.id <= before).order_by(
         Post.id.desc()).limit(amount).all()
 
     response = [{

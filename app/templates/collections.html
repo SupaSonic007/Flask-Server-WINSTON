@@ -4,9 +4,11 @@
 
 {% endblock %} {% block content %}
 
-<main>
-    Collections
-    <div id="listOfCollections"></div>
+<main class="">
+    <h1 class="text-5xl">Collections</h1>
+    <br>
+    <br>
+    <div id="listOfCollections" class="outline w-full lg:w-1/2 mx-auto overflow-y-scroll h-full rounded-md bg-accent p-5"></div>
 </main>
 <script>
 
@@ -25,16 +27,23 @@
     }
 
     function addCollections(collections, container) {
-        collections.forEach(collection => {
+        for (collection of collections) {
             const div = document.createElement('div');
-            div.innerHTML = `
-                <div class="bg-accent outline p-5 rounded">
-                    <h1>${collection.name}</h1>
-                    <p>${collection.number_of_posts}</p>
-                </div>
-            `;
+            div.classList.add('p-5', 'rounded', 'bg-accent', 'outline', 'my-5');
+
+            const h1 = document.createElement('h1');
+            h1.classList.add('text-2xl');
+            h1.innerText = collection.name || 'Untitled Collection';
+
+            const p = document.createElement('p');
+            p.classList.add('text-xl');
+            p.innerText = `${collection.number_of_posts} posts`;
+
+            div.append(h1);
+            div.append(p);
+            
             container.append(div);
-        });
+        };
     }
 </script>
 {% endblock %}

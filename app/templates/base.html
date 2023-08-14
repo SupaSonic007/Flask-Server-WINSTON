@@ -174,17 +174,17 @@
                 const dropdownContent = document.getElementById('userDropdownContent');
                 const dropdown = document.getElementById('userDropdown');
 
-                dropdown.addEventListener('mouseenter', () => {
+                dropdown?.addEventListener('mouseenter', () => {
                         dropdownContent.classList.add('md:block');
                     });
-                dropdownContent.addEventListener('mouseenter', () => {
+                dropdownContent?.addEventListener('mouseenter', () => {
                         dropdownContent.classList.add('md:block');
                     });
-                dropdown.addEventListener('mouseleave', () => {
+                dropdown?.addEventListener('mouseleave', () => {
                         dropdownContent
                             .classList.remove('md:block');
                     });
-                dropdownContent.addEventListener('mouseleave', () => {
+                dropdownContent?.addEventListener('mouseleave', () => {
                         dropdownContent.classList.remove('md:block');
                     });
             });
