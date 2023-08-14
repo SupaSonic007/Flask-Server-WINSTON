@@ -122,7 +122,7 @@
             body = document.createElement('div');
             body.className = 'px-4 truncate';
             body.id = 'body';
-            body.innerHTML = marked.parse(post.body.replaceAll('\n', ' '), {
+            body.innerHTML = marked.parse(post.body.replaceAll('\n', ' ').replaceAll('![','! ['), {
                 mangle: false,
                 headerIds: false,
             });
