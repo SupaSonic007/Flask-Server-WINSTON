@@ -49,8 +49,6 @@ if app.config['MAIL_SERVER']:
         app.logger.setLevel(logging.INFO)
         app.logger.info('Winstogram startup')
 
-print(app.config)
-
 mail = Mail(app)
 
 from app import api, errors, models, routes, winston

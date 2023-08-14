@@ -9,7 +9,7 @@ from app import app, db
 from app.email import send_password_reset_email
 from app.forms import (AdminSQLForm, ControllerForm, EditProfileForm,
                        ForgotPasswordForm, LoginForm, PostForm,
-                       RegistrationForm, ResetPasswordForm, SaveForm)
+                       RegistrationForm, ResetPasswordForm, CommentForm)
 from app.models import (Collection, CollectionForPosts, Comment, Like, Post,
                         User)
 from app.winston import sendToPi
@@ -61,14 +61,22 @@ def about():
 def winstogram(post_id=None):
 
     if post_id:
-        save_form = SaveForm()
-        if save_form.validate_on_submit():
-            # Save the post
-            saveCollection = current_user.collections.first()
-            saveCollection.posts.append(Post.query.get(id))
+        comment_form = CommentForm()
+
+        if comment_form.validate_on_submit():
+
+            comment = Comment(
+                body=comment_form.comment.data.replace(
+                    '<', "&lt;").replace('>', "&gt;"),
+                user_id=current_user.get_id(),
+                post_id=post_id
+            )
+
+            db.session.add(comment)
             db.session.commit()
 
-            return redirect(url_for('post', id=post_id))
+            return redirect(url_for('winstogram', post_id=post_id))
+
         return render_template(
             'post.html',
             title='Post',
@@ -76,7 +84,7 @@ def winstogram(post_id=None):
             id=post_id,
             authorid=Post.query.get(post_id).user_id,
             app=app,
-            form=save_form
+            form=comment_form
         )
 
     post_form = PostForm()

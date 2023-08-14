@@ -53,10 +53,6 @@ class EmptyForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-class SaveForm(FlaskForm):
-    save = SubmitField("Save")
-
-
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[
                            DataRequired(), Length(1, 16)])
@@ -89,6 +85,10 @@ class ResetPasswordForm(FlaskForm):
         'Repeat Password', validators=[DataRequired(),
                                        EqualTo('password'), Length(8, 32)])
     submit = SubmitField('Reset Password')
+
+class CommentForm(FlaskForm):
+    comment = TextAreaField("Comment", validators=[DataRequired(), Length(1, 1000)])
+    submit = SubmitField("Submit")
 
 def username_regex_check(username):
     regex = re.compile(r"^[\-a-z0-9_\.]+$")

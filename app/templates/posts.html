@@ -51,9 +51,10 @@
     var posts;
     document.addEventListener('DOMContentLoaded', async () => {
         const container = document.getElementById('postsContainer');
+
         posts = await getLatestPosts();
 
-        addPosts(posts, container)
+        addPosts(posts, container);
 
         container.addEventListener('scroll', async () => {
             if (
@@ -69,7 +70,15 @@
                 addPosts(newPosts, container);
             }
         });
-    
+
+        while (container.scrollHeight <= container.clientHeight) {
+            var newPosts = await loadPreviousPosts(posts[posts.length - 1].id);
+
+            posts.push(...newPosts);
+
+            addPosts(newPosts, container);
+        }
+
         window.addEventListener('scroll', async () => {
             // if the user is at the bottom of the page
             if (
@@ -84,7 +93,7 @@
 
                 addPosts(newPosts, container);
             }
-        })
+        });
     });
 
     async function getLatestPosts() {
@@ -122,10 +131,13 @@
             body = document.createElement('div');
             body.className = 'px-4 truncate';
             body.id = 'body';
-            body.innerHTML = marked.parse(post.body.replaceAll('\n', ' ').replaceAll('![','! ['), {
-                mangle: false,
-                headerIds: false,
-            });
+            body.innerHTML = marked.parse(
+                post.body.replaceAll('\n', ' ').replaceAll('![', '! ['),
+                {
+                    mangle: false,
+                    headerIds: false,
+                }
+            );
             div.appendChild(body);
 
             a.appendChild(div);

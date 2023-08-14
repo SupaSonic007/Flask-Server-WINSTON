@@ -38,15 +38,16 @@ def api_post(id):
         'timestamp': post.timestamp,
         'username': post.author.username,
         'user_id': post.user_id,
-        'comments': {
-            comment.id: {
+        'comments': [
+            {
                 'id': comment.id,
                 'body': comment.body,
                 'timestamp': comment.timestamp,
                 'user_id': comment.user_id,
+                'username': comment.author.username,
                 'post_id': comment.post_id,
             } for comment in post.comments.all()
-        },
+        ],
     }
 
     return response, 200
@@ -274,6 +275,39 @@ def api_collections_all():
     return response, 200
 
 
+@app.route('/api/user/collections/<id>', methods=["GET"])
+def api_user_collections(id):
+    """
+    Get all collections of a user
+    params: id - user id
+    :return: json
+    """
+
+    if not id:
+        return jsonify(response="Invalid request", status='error'), 400
+
+    collections = Collection.query.filter_by(user_id=id).all()
+
+    response = [
+        {
+            'id': collection.id,
+            'user_id': collection.user_id,
+            'username': collection.user.username,
+            'name': collection.name,
+            'posts': [
+                {
+                    'id': post.id,
+                    'header': post.header,
+                    'body': post.body,
+                    'timestamp': post.timestamp,
+                    'user_id': post.user_id,
+                } for post in collection.posts.all()
+            ],
+            'number_of_posts': len(collection.posts.all())
+        } for collection in collections
+    ]
+
+
 @app.route('/api/comments/<id>', methods=["GET"])
 def api_comments(id):
     """
@@ -444,7 +478,7 @@ def api_table_data():
                         } for collection in user.collections.all()
                     },
                 }} for user in users]
-            
+
             return response, 200
 
         case 'post':
