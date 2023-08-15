@@ -262,7 +262,7 @@ def save_post(id):
         'status': 'success'
     }
 
-@app.route('/post/<id>/unsave', methods=["POST"])
+@app.route('/post/<id>/unsave', methods=["DELETE"])
 def unsave_post(id):
 
     collections = current_user.collections
@@ -386,3 +386,11 @@ def reset_password(token):
         flash('Your password has been reset.')
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
+
+@app.route('/screw_with_winston')
+def screw_with_winston():
+    return render_template(
+        'screw_with_winston.html',
+        title='Screw with Winston',
+        app=app
+    )

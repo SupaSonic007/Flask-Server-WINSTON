@@ -2,7 +2,7 @@
 <meta name="title" content="{{ user.username }}'s Profile" />
 <meta name="description" content="The profile page of {{ user.username }}" />
 {% endblock %} {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="{{ url_for('static', filename='dist/lib/markedjs.js') }}"></script>
 {% endblock %} {% block content %}
 
 <main

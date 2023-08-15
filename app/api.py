@@ -1,4 +1,4 @@
-import json
+from sqlalchemy import text
 
 from flask import request, jsonify
 from flask_login import current_user, login_required
@@ -428,7 +428,7 @@ def api_check_existence_in_collections(id=None):
 
 
 @login_required
-@app.route('/api/table/', methods=['GET'])
+@app.route('/api/table', methods=['GET'])
 def api_table_data():
     """
     Get data for a table specified by table_name
@@ -437,11 +437,32 @@ def api_table_data():
 
     table_name = request.args.get('table_name', None)
 
+    select = request.args.get('select', None)
+
     if not current_user.admin:
         return jsonify(response="Unauthorized", status='error'), 401
 
-    if not table_name:
+    if not table_name and not select:
         return jsonify(response="Invalid request", status='error'), 400
+
+    # Specifying available options for future expansion
+    select_options = ['count']
+
+    if select:
+        if select in select_options:
+
+            match select:
+                case 'count':
+                    if table_name:
+                        return db.session.query(table_name).count()
+                    else:
+                        tables = {
+                            'user': User,
+                            'post': Post,
+                            'comment': Comment,
+                            'collection': Collection,
+                        }
+                        return {table: tables[table].query.count() for table in list(tables.keys())}, 200
 
     match table_name:
 
@@ -454,32 +475,15 @@ def api_table_data():
                     'username': user.username,
                     'bio': user.bio,
                     'time_created': user.time_created,
-                    'collections': {
-                        collection.id: {
-                            'id': collection.id,
-                            'user_id': collection.user_id,
-                            'posts': {
-                                post.id: {
-                                    'id': post.id,
-                                    'header': post.header,
-                                    'body': post.body,
-                                    'timestamp': post.timestamp,
-                                    'user_id': post.user_id,
-                                    'username': post.author.username,
-                                    'comments': {
-                                        comment.id: {
-                                            'id': comment.id,
-                                            'body': comment.body,
-                                            'timestamp': comment.timestamp,
-                                            'user_id': comment.user_id,
-                                            'post_id': comment.post_id,
-                                        } for comment in post.comments.all()
-                                    },
-                                } for post in collection.posts.all()
-                            },
-                        } for collection in user.collections.all()
-                    },
-                }} for user in users]
+                    'collections': [
+                        collection.id for collection in user.collections.all()],
+                    'posts': [
+                        post.id for post in user.posts.all()],
+                    'comments': [
+                        comment.id for comment in user.comments.all()],
+                    'admin': user.admin,
+                },
+            } for user in users]
 
             return response, 200
 
@@ -493,15 +497,7 @@ def api_table_data():
                     'timestamp': post.timestamp,
                     'user_id': post.user_id,
                     'username': post.author.username,
-                    'comments': {
-                        comment.id: {
-                            'id': comment.id,
-                            'body': comment.body,
-                            'timestamp': comment.timestamp,
-                            'user_id': comment.user_id,
-                            'post_id': comment.post_id,
-                        } for comment in post.comments.all()
-                    },
+                    'comments': [comment.id for comment in post.comments.all()],
                 }
             } for post in posts]
 
@@ -527,26 +523,38 @@ def api_table_data():
                 collection.id: {
                     'id': collection.id,
                     'user_id': collection.user_id,
-                    'posts': {
-                        post.id: {
-                            'id': post.id,
-                            'header': post.header,
-                            'body': post.body,
-                            'timestamp': post.timestamp,
-                            'user_id': post.user_id,
-                            'username': post.author.username,
-                            'comments': {
-                                comment.id: {
-                                    'id': comment.id,
-                                    'body': comment.body,
-                                    'timestamp': comment.timestamp,
-                                    'user_id': comment.user_id,
-                                    'post_id': comment.post_id,
-                                } for comment in post.comments.all()
-                            },
-                        } for post in collection.posts.all()
-                    },
+                    'posts': [post.id for post in collection.posts.all()]
                 }
             } for collection in collections]
 
             return response, 200
+
+
+@app.route('/api/camera_data/camera', methods=['GET', 'POST'])
+def camera_data():
+    """
+    Send and receive camera data from the rpi
+    :return: json
+    """
+    if request.method == 'POST':
+        open('D:/camera_data_l',
+             'wb').write(request.files['camera_data_left'].read().decode('utf-8'))
+        open('D:/camera_data_r',
+             'wb').write(request.files['camera_data_right'].read().decode('utf-8'))
+
+    if request.method == 'GET':
+        return {'left': open('D:/camera_data_l', 'rb').read(), 'right': open('D:/camera_data_r', 'rb').read()}
+
+    return 200
+
+
+@app.route('/api/camera_data/processed', methods=['POST'])
+def processed_camera_data():
+    """
+    Send and receive processed camera data from another computer
+    """
+
+    open('D:/processed_camera_data',
+         'wb').write(request.files['processed_camera_data'].read().decode('utf-8'))
+
+    return 200

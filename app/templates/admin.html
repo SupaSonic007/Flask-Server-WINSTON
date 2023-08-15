@@ -1,5 +1,5 @@
 {% extends "base.html" %} {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="{{ url_for('static', filename='dist/lib/markedjs.js') }}"></script>
 {% endblock %} {% block content %}
 <div>
     <h1 class="text-5xl float-left">Admin Panel</h1>
@@ -24,7 +24,7 @@
 <!-- CREATE A GRID FOR HOLDING EVERYTHING -->
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
     <div
-        id="sqlQueryContainer"
+        id="sqltable_nameContainer"
         class="col-span-1 md:px-10 sm:col-span-2 lg:col-start-1 xl:col-span-1"
     >
         <form action="" method="post" class="" novalidate>
@@ -54,27 +54,52 @@
 </div>
 <script>
 
-    const view = 0;
+    var view = 0;
+    var first_run = true;
+    var tableData = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
         dbPreview = document.getElementById('dbPreview');
 
         inspectContainer = document.getElementById('inspectDBEntryContainer');
 
-        var query = null;
+        var table_name = null;
+        var select = null;
 
-        if (window.location.href.includes('?')) {
-            query = window.location.href.split('?')[1].split('=')[1];
+        const href = window.location.href
+        if (href.includes('?') && href.includes('table')) {
+            var query = window.location.href.split('?')[1];
+            if (query.includes('&')) {
+                query = query.split('&');
+                if (query[0].includes('table')) {
+                    table_name = query[0].split('=')[1];
+                    select = query[1].split('=')[1];
+                } else {
+                    table_name = query[1].split('=')[1];
+                    select = query[1].split('=')[1];
+                }
+            } else {
+                table_name = query.split('=')[1];
+            }
+
         }
 
-        previewDB();
+        await previewDB(select, table_name);
 
-        if (query) {
-            await createInspection(query);
+        if (table_name) {
+            await createInspection(table_name);
         }
     });
 
-    function previewDB() {
+    async function previewDB(select, table_name) {
+        // Select will be a selection type, e.g. Count
+        // Table_name will be the table for the selection
+        var count = null;
+        count = await fetch(`{{ url_for('api_table_data') }}?select=${select ? select:'count'}`);
+        count = await count.json();
+
+        console.log(count)
+
         tables = ['user', 'post', 'collection', 'comment'];
 
         preview = document.getElementById('dbPreview');
@@ -85,57 +110,110 @@
 
             col1 = document.createElement('td');
             col1.className = 'p-2 border-2 border-black';
-            col1.innerHTML = table;
+            col1.innerText = table;
 
             col2 = document.createElement('td');
             col2.className = 'p-2 border-2 border-black';
-            col2.innerHTML = `<a href="?table=${table}">Inspect</a>`;
+            col2.innerText = count[table];
+                        
+            col3 = document.createElement('td');
+            col3.className = 'p-2 border-2 border-black';
+            col3.innerHTML = `<a href="?table=${table}">Inspect</a>`;
 
             row.appendChild(col1);
             row.appendChild(col2);
+            row.appendChild(col3);
 
             preview.appendChild(row);
         });
     }
 
-    async function createInspection(query) {
+    async function createInspection(table_name) {
         inspectContainer = document.getElementById('inspectDBEntryContainer');
 
         response = await fetch(
-            `{{ url_for('api_table_data') }}?table_name=${query}`
+            `{{ url_for('api_table_data') }}?table_name=${table_name}`
         );
 
         tableData = await response.json();
 
+        updateInspection(table_name);
+
+    }
+
+    function updateInspection(table_name) {
+
+        inspectContainer = document.getElementById('inspectDBEntryContainer');
+
+        inspectContainer.innerHTML = '';
+
         header = document.createElement('h1');
         header.className = 'text-5xl';
-        header.innerHTML = query.charAt(0).toUpperCase() + query.slice(1);
+        header.innerHTML = table_name.charAt(0).toUpperCase() + table_name.slice(1);
 
         inspectContainer.appendChild(header);
 
         table = document.createElement('table');
-        table.className = 'w-full border-2 border-black';
+        table.className = 'w-full border-2 border-black bg-accent';
         
-        // Errors out
         for (entry of tableData.slice(view, view+5)) {
             row = document.createElement('tr');
             row.className = 'border-2 border-black';
             for (key in entry) {
                 col = document.createElement('td');
-                col.className = 'p-2 border-2 border-black';
+                col.className = 'p-2 border-2 border-black overflow-y-hidden';
                 col.innerText = `${parseInt(JSON.stringify(key).replaceAll('"',''))} - ${JSON.stringify(
                     entry[key]
                 )}`;
-                console.log(key);
 
                 row.appendChild(col);
             }
 
             table.appendChild(row);
+            
+            inspectContainer.appendChild(table);
+        }
+        
+        inspectContainer.appendChild(document.createElement('br'));
+
+        // Pagination
+        prev_page = document.createElement('button');
+        prev_page.className = 'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer disabled:hover:cursor-not-allowed disabled:opacity-50 mr-3';
+        prev_page.id = 'prev_page';
+        prev_page.innerText = 'Previous Page';
+        if (view == 0) {
+            prev_page.disabled = true;
+        }
+        else {
+            prev_page.disabled = false;
+            prev_page.onclick = () => {
+                view -= 5;
+                updateInspection(table_name);
+            };
         }
 
-        inspectContainer.appendChild(table);
+        inspectContainer.appendChild(prev_page);
 
+        next_page = document.createElement('button');
+        next_page.className = 'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer disabled:hover:cursor-not-allowed disabled:opacity-50 ml-3';
+        next_page.id = 'next_page';
+        next_page.innerText = 'Next Page';
+        if (view > tableData.length-6 || tableData.length < 6) {
+            next_page.disabled = true;
+        }
+        else {
+            next_page.disabled = false;
+            next_page.onclick = () => {
+                view += 5;
+                updateInspection(table_name);
+            };
+        }
+
+        inspectContainer.appendChild(next_page);
+        
+        if (!first_run) window.scrollTo(0, document.body.scrollHeight);
+
+        first_run = false;
     }
 </script>
 {% endblock %}
