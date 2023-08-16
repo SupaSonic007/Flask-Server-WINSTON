@@ -27,7 +27,7 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_username(self, username) -> None:
-        if User.query.filter_by(username=username.data.lower()).first():
+        if User.query.filter_by(username=username.data.lower()).first() or username.data.lower() in ['admin', 'moderator', 'owner', 'creator', 'mod', 'modteam', 'dev', 'developer', 'winston', 'winstogram', 'administrator']:
             raise ValidationError("Username taken")
 
         username_regex_check(username)
@@ -62,7 +62,7 @@ class EditProfileForm(FlaskForm):
     def validate_username(self, username) -> None:
         user = User.query.filter_by(username=username.data.lower()).first()
 
-        if user and user.username != current_user.username:
+        if user and user.username != current_user.username or username.data.lower() in username.data.lower() in ['admin', 'moderator', 'owner', 'creator', 'mod', 'modteam', 'dev', 'developer', 'winston', 'winstogram', 'administrator']:
             raise ValidationError("Username taken")
 
         username_regex_check(username)

@@ -2,6 +2,20 @@
 <script src="{{ url_for('static', filename='dist/lib/markedjs.js') }}"></script>
 {% endblock %} {% block content %}
 
-<main></main>
+<main>
+    <div class="outline w-full lg:w-1/2 mx-auto overflow-y-scroll h-full rounded-md bg-accent p-5" id="collectionContainer">
+    </div>
+</main>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await getCollectionData();
+    })
+
+    async function getCollectionData() {
+        data = await fetch('/api/collection/')
+    }
+</script>
 
 {% endblock %}

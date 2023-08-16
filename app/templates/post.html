@@ -87,13 +87,13 @@
             header.id = 'header';
 
             const headerText = document.createElement('h2');
-            headerText.classList.add('text-4xl', 'truncate');
+            headerText.classList.add('text-4xl', 'overflow-y-hidden');
 
             const headerTextBold = document.createElement('b');
             headerTextBold.textContent = post.header;
 
             const author = document.createElement('i');
-            author.classList.add('text-2xl');
+            author.classList.add('text-2xl', 'pl-2');
             author.textContent = 'by ';
 
             const authorLink = document.createElement('a');
@@ -110,12 +110,13 @@
 
             const bodyDiv = document.createElement('div');
             bodyDiv.id = 'body';
-            bodyDiv.classList.add('px-4', 'truncate');
+            bodyDiv.classList.add('px-4', 'overflow-y-hidden');
             bodyDiv.innerHTML = body;
 
             saveButtonItalics.appendChild(saveButton);
             author.appendChild(authorLink);
             headerText.appendChild(headerTextBold);
+            headerText.appendChild(document.createElement('br'));
             headerText.appendChild(author);
             headerText.appendChild(document.createElement('br'));
             headerText.appendChild(saveButtonItalics);
