@@ -5,16 +5,49 @@
     content="A website centered around a robot dog called W.I.N.S.T.O.N."
 />
 {% endblock %} {% block content %}
-<h1 class="text-5xl">Winston Stream</h1>
-<br />
-<br />
-<div
+<main>
+    <h1 class="text-5xl">Winston Stream</h1>
+    <br />
+    <br />
+    <div id="eyeStreamContainer" class="w-full flex justify-between">
+        <div
+        class="md:max-w-[40rem] xl:h-max w-full inline-block mx-auto outline rounded bg-accent p-5"
+        id="eyeStreamLeft"
+        >
+        <div class="outline rounded bg-accent">
+            <!-- <img src=""> -->
+            <img
+                id="leftStream"
+                class="w-full"
+                src="{{ url_for('static', filename='images/4l.png') }}"
+            />
+        </div>
+    </div>
+    <div
+    class="md:max-w-[40rem] xl:h-max w-full inline-block mx-auto outline rounded bg-accent p-5"
+        id="eyeStreamRight"
+    >
+    <div class="outline rounded bg-accent">
+            <!-- <img src=""> -->
+            <img
+                id="rightStream"
+                class="w-full"
+                src="{{ url_for('static', filename='images/4r.png') }}"
+                />
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <div
     class="md:max-w-[40rem] xl:h-max w-full mx-auto outline rounded bg-accent p-5"
-    id="stream"
->
+    id="processedImage"
+    >
     <div class="outline rounded bg-accent">
         <!-- <img src=""> -->
-        <img id="Stream" class="w-full" src="{{ url_for('stream_feed') }}">
+        <img id="processedStream" class="w-full" src="{{ url_for('static', filename='images/depth4.png') }}" />
     </div>
 </div>
+</main>
+
 {% endblock %}

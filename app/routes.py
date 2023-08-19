@@ -311,8 +311,20 @@ def edit_profile():
     )
 
 
-@app.route('/stream_feed')
-def stream_feed():
+@app.route('/stream_feed_left')
+def stream_feed_left():
+    if open('D:/img_running.txt', 'r').read() == '0':
+        return (open('app/static/images/placeholder.jpg', 'rb').read())
+    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/stream_feed_right')
+def stream_feed_right():
+    if open('D:/img_running.txt', 'r').read() == '0':
+        return (open('app/static/images/placeholder.jpg', 'rb').read())
+    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/stream_feed_processed')
+def stream_feed_processed():
     if open('D:/img_running.txt', 'r').read() == '0':
         return (open('app/static/images/placeholder.jpg', 'rb').read())
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -362,7 +374,7 @@ def forgot_password():
             flash("No user found with that email")
             return redirect(url_for('forgot_password'))
         send_password_reset_email(user)
-        flash("Password reset email sent!")
+        flash("Password reset email sent! (Please check spam...)")
         return redirect(url_for('login'))
 
     return render_template(
@@ -387,10 +399,10 @@ def reset_password(token):
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
 
-@app.route('/screw_with_winston')
-def screw_with_winston():
+@app.route('/mess_with_winston', methods=["GET", "POST"])
+def mess_with_winston():
     return render_template(
-        'screw_with_winston.html',
-        title='Screw with Winston',
+        'mess_with_wint.html',
+        title='Mess with Winston',
         app=app
     )

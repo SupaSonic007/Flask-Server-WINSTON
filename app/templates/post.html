@@ -2,9 +2,9 @@
 <script src="{{ url_for('static', filename='dist/lib/markedjs.js') }}"></script>
 {% endblock %} {% block content %}
 <div class="w-full">
-    <div class="outline rounded bg-accent p-5" id="postContainer"></div>
+    <div class="outline rounded bg-accent p-5 break-normal" id="postContainer"></div>
     <br />
-    <div class="outline rounded bg-accent p-5">
+    <div class="outline rounded bg-accent p-5 break-normal">
         <h2 class="text-2xl"><b>Comments</b></h2>
         {% if current_user.is_active %}
         <br />

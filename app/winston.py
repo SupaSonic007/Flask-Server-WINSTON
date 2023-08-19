@@ -23,7 +23,4 @@ def sendToArduino(data: int):
     serial = Serial('COM8', 9600)
 
     serial.write(bytes(data, 'utf-8'))
-
-    matches = re.findall(r'([a-z][0-9]+)', data)
-
-    print(json.dumps(matches))
+    

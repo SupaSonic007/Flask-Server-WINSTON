@@ -537,10 +537,10 @@ def camera_data():
     :return: json
     """
     if request.method == 'POST':
-        open('D:/camera_data_l',
-             'wb').write(request.files['camera_data_left'].read().decode('utf-8'))
-        open('D:/camera_data_r',
-             'wb').write(request.files['camera_data_right'].read().decode('utf-8'))
+        open('D:/camera_data_l.jpg',
+             'wb').write(request.json['camera_data_left'].read().decode('utf-8'))
+        open('D:/camera_data_r.jpg',
+             'wb').write(request.json['camera_data_right'].read().decode('utf-8'))
 
     if request.method == 'GET':
         return {'left': open('D:/camera_data_l', 'rb').read(), 'right': open('D:/camera_data_r', 'rb').read()}
