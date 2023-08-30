@@ -77,12 +77,14 @@ def winstogram(post_id=None):
 
             return redirect(url_for('winstogram', post_id=post_id))
 
+        post = Post.query.get_or_404(post_id)
+
         return render_template(
             'post.html',
             title='Post',
             current_user=current_user,
             id=post_id,
-            authorid=Post.query.get(post_id).user_id,
+            authorid=post.user_id,
             app=app,
             form=comment_form
         )

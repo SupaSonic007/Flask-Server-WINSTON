@@ -1,5 +1,5 @@
 {% extends "base.html" %} {% block scripts %}
-<script src="{{ url_for('static', filename='dist/lib/markedjs.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js" integrity="sha512-LhccdVNGe2QMEfI3x4DVV3ckMRe36TfydKss6mJpdHjNFiV07dFpS2xzeZedptKZrwxfICJpez09iNioiSZ3hA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %} {% block content %}
 <div>
     <h1 class="text-5xl float-left">Admin Panel</h1>
@@ -160,11 +160,28 @@
             row = document.createElement('tr');
             row.className = 'border-2 border-black';
             for (key in entry) {
-                col = document.createElement('td');
-                col.className = 'p-2 border-2 border-black overflow-y-hidden';
+                var col = document.createElement('td');
+                col.className = 'p-2 border-2 border-black overflow-y-hidden w-full max-w-xl';
                 col.innerText = `${parseInt(JSON.stringify(key).replaceAll('"',''))} - ${JSON.stringify(
                     entry[key]
                 )}`;
+
+                row.appendChild(col);
+
+                // delete button far right
+                col = document.createElement('td');
+                col.className = 'p-2 border-2 border-black overflow-y-hidden';
+
+                const id = parseInt(JSON.stringify(key).replaceAll('"',''));
+                
+                var deleteButton = document.createElement('button');
+                deleteButton.className = 'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer float-right';
+                deleteButton.innerText = 'Delete';
+                deleteButton.onclick = () => {
+                    deleteEntry(table_name, id);
+                };
+
+                col.appendChild(deleteButton);
 
                 row.appendChild(col);
             }
@@ -214,6 +231,24 @@
         if (!first_run) window.scrollTo(0, document.body.scrollHeight);
 
         first_run = false;
+    }
+
+    async function deleteEntry(table_name, id) {
+        console.log(table_name)
+        response = await fetch(
+            `{{ url_for('delete_database_entry') }}?table_name=${table_name}&entry_id=${id}`,
+            {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    table_name: table_name,
+                    entry_id: id,
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        )
+        createInspection(table_name)
     }
 </script>
 {% endblock %}

@@ -8,46 +8,29 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.schema import MetaData
 
 from config import Config
 
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+
+metadata = MetaData(naming_convention=convention)
+
 app = Flask(__name__)
 app.config.from_object(Config)
-db = SQLAlchemy(app)
+db = SQLAlchemy(app, metadata=metadata)
 migrate = Migrate(app, db, render_as_batch=True)
 login = LoginManager(app)
 login.init_app(app)
 login.login_view = 'login'
 login.login_message = 'Please log in to access this page.'
 moment = Moment(app)
-
-if app.config['MAIL_SERVER']:
-    auth = None
-    if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
-        auth = (app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
-    secure = None
-    if app.config['MAIL_USE_TLS']:
-        secure = ()
-    mail_handler = SMTPHandler(
-        mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-        fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-        toaddrs=app.config['ADMINS'], subject='Winstogram Failure',
-        credentials=auth, secure=secure)
-    mail_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(mail_handler)
-
-    if not os.path.exists('logs'):
-
-        os.mkdir('logs')
-        file_handler = RotatingFileHandler('logs/winstogram.log', maxBytes=10240,
-                                           backupCount=10)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
-
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('Winstogram startup')
 
 mail = Mail(app)
 

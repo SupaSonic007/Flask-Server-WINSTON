@@ -1,20 +1,34 @@
 {% extends "base.html" %} {% block scripts %}
-<script src="{{ url_for('static', filename='dist/lib/markedjs.js') }}"></script>
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"
+    integrity="sha512-LhccdVNGe2QMEfI3x4DVV3ckMRe36TfydKss6mJpdHjNFiV07dFpS2xzeZedptKZrwxfICJpez09iNioiSZ3hA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+></script>
+<link
+    href="{{ url_for('static', filename='themes/prism.css') }}"
+    rel="stylesheet"
+/>
 {% endblock %} {% block content %}
 
 <main>
-    <div class="outline w-full lg:w-1/2 mx-auto overflow-y-scroll h-full rounded-md bg-accent p-5" id="collectionContainer">
-    </div>
+    <div
+        class="outline w-full lg:w-1/2 mx-auto overflow-y-scroll h-full rounded-md bg-accent p-5"
+        id="collectionContainer"
+    ></div>
 </main>
 
 <script>
-
     document.addEventListener('DOMContentLoaded', async () => {
         await getCollectionData();
-    })
+        const prismImportScript = document.createElement('script');
+        prismImportScript.src =
+            '{{ url_for("static", filename="dist/lib/prism.js") }}';
+        document.body.appendChild(prismImportScript);
+    });
 
     async function getCollectionData() {
-        data = await fetch('/api/collection/')
+        data = await fetch('/api/collection/');
     }
 </script>
 

@@ -2,7 +2,7 @@
 <meta name="title" content="{{ user.username }}'s Profile" />
 <meta name="description" content="The profile page of {{ user.username }}" />
 {% endblock %} {% block scripts %}
-<script src="{{ url_for('static', filename='dist/lib/markedjs.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js" integrity="sha512-LhccdVNGe2QMEfI3x4DVV3ckMRe36TfydKss6mJpdHjNFiV07dFpS2xzeZedptKZrwxfICJpez09iNioiSZ3hA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %} {% block content %}
 
 <main
@@ -87,13 +87,11 @@
             ).fromNow()}</i>`;
             a.appendChild(author);
 
+            const converter = new showdown.Converter()
             body = document.createElement('span');
             body.id = 'body';
             body.className = 'truncate block';
-            body.innerHTML = marked.parse(post.body.replaceAll('\n', ' '), {
-                mangle: false,
-                headerIds: false,
-            });
+            body.innerHTML = converter.makeHtml(post.body.replaceAll('\n', ' '));
             a.appendChild(body);
 
             document.getElementById('posts').appendChild(a);

@@ -1,8 +1,20 @@
 {% extends "base.html" %} {% block scripts %}
-<script src="{{ url_for('static', filename='dist/lib/markedjs.js') }}"></script>
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"
+    integrity="sha512-LhccdVNGe2QMEfI3x4DVV3ckMRe36TfydKss6mJpdHjNFiV07dFpS2xzeZedptKZrwxfICJpez09iNioiSZ3hA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+></script>
+<link
+    href="{{ url_for('static', filename='themes/prism.css') }}"
+    rel="stylesheet"
+/>
 {% endblock %} {% block content %}
 <div class="w-full">
-    <div class="outline rounded bg-accent p-5 break-normal" id="postContainer"></div>
+    <div
+        class="outline rounded bg-accent p-5 break-normal"
+        id="postContainer"
+    ></div>
     <br />
     <div class="outline rounded bg-accent p-5 break-normal">
         <h2 class="text-2xl"><b>Comments</b></h2>
@@ -53,8 +65,8 @@
                 save.textContent = 'Save';
             }
 
-            if (save.classList.contains('disabled') == false) {
-                save.addEventListener('click', async function () {
+            if (!save.classList.contains('disabled')) {
+                save.addEventListener('click', async function (event) {
                     save.dataset.saving = 'true';
                     save.textContent = 'Saving...';
                     const time = new Date().getTime();
@@ -70,17 +82,23 @@
                     save.classList.add('disabled');
                     save.dataset.saved = 'true';
                     save.textContent = 'Saved!';
-                    save.removeEventListener('click', this);
-                });
+                }, { once: true});
             }
+            const prismImportScript = document.createElement('script');
+            prismImportScript.src =
+                '{{ url_for("static", filename="dist/lib/prism.js") }}';
+            document.body.appendChild(prismImportScript);
         });
 
         async function renderPost() {
             const post = await getPost(parseInt('{{ id }}'));
-            const body = marked.parse(post.body, {
-                mangle: false,
-                headerIds: false,
-            });
+            const converter = new showdown.Converter();
+            converter.setOption('emoji', true);
+            const body = converter.makeHtml(
+                post.body.replace(/(?<=\n)\n/g, '­  \n').replace(/(?<=­ {2})\n(?=---)/g, '\n\n')
+            );
+            console.log(post.body.replace(/(?<=\n)\n/g, '­  \n').replace(/(?<=­ {2})\n(?=---)/g, '\n\n'))
+            console.log(body);
 
             // DOM manipulation to render post
             const header = document.createElement('div');
@@ -206,6 +224,5 @@
 
         const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     </script>
-
-    {% endblock %}
 </div>
+{% endblock %}

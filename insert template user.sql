@@ -1,0 +1,1 @@
+INSERT INTO post ("header","body","imageLocation","timestamp","user_id") VALUES ();

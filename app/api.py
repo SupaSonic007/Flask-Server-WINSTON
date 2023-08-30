@@ -4,7 +4,7 @@ from flask import request, jsonify
 from flask_login import current_user, login_required
 
 from app import app, db
-from app.models import Collection, Comment, Post, User
+from app.models import Collection, Comment, Post, User, CollectionForPosts, Like
 
 
 @app.route('/api', methods=["GET"])
@@ -558,3 +558,85 @@ def processed_camera_data():
          'wb').write(request.files['processed_camera_data'].read().decode('utf-8'))
 
     return 200
+
+
+@login_required
+@app.route('/api/database/delete', methods=['DELETE'])
+def delete_database_entry():
+
+    if not current_user.admin:
+        return jsonify(response="Unauthorized", status='error'), 401
+
+    data = request.get_json()
+    print(data)
+    table_name = data.get('table_name', None)
+    entry_id = data.get('entry_id', None)
+
+    if not (table_name and entry_id):
+        return jsonify(response=f"Invalid request, missing table or entry: {table_name = }, {entry_id = }", status='error'), 400
+
+    match table_name:
+
+        case 'user':
+
+            user = User.query.get(entry_id)
+
+            if not user:
+                return jsonify(response="User not found", status='error'), 404
+
+            collection_for_user = Collection.query.filter_by(user_id=entry_id).all()
+            collection_for_posts_for_user = CollectionForPosts.query.filter_by(user_id=entry_id).all()
+            posts_for_user = Post.query.filter_by(user_id=entry_id).all()
+            comments_for_user = Comment.query.filter_by(user_id=entry_id).all()
+            likes_for_user = Like.query.filter_by(user_id=entry_id).all()
+
+            for table in [collection_for_posts_for_user, collection_for_user, posts_for_user, comments_for_user, likes_for_user]:
+                if not table:
+                    continue
+                for entry in table:
+                    db.session.delete(entry)
+                db.session.commit()
+
+            db.session.delete(user)
+            db.session.commit()
+
+            return jsonify(response="User deleted", status='success'), 200
+
+        case 'post':
+
+            post = Post.query.get(entry_id)
+
+            if not post:
+                return jsonify(response="Post not found", status='error'), 404
+
+            db.session.delete(post)
+            db.session.commit()
+
+            return jsonify(response="Post deleted", status='success'), 200
+
+        case 'comment':
+
+            comment = Comment.query.get(entry_id)
+
+            if not comment:
+                return jsonify(response="Comment not found", status='error'), 404
+
+            db.session.delete(comment)
+            db.session.commit()
+
+            return jsonify(response="Comment deleted", status='success'), 200
+
+        case 'collection':
+
+            collection = Collection.query.get(entry_id)
+
+            if not collection:
+                return jsonify(response="Collection not found", status='error'), 404
+
+            db.session.delete(collection)
+            db.session.commit()
+
+            return jsonify(response="Collection deleted", status='success'), 200
+
+        case _:
+            return jsonify(response="Invalid table name", status='error'), 400

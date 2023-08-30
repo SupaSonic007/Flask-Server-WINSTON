@@ -12,6 +12,7 @@ from app import app, db
 
 class User(db.Model, UserMixin):
 
+    # Class native
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(16), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
@@ -19,10 +20,14 @@ class User(db.Model, UserMixin):
     password_hashed = db.Column(db.String(128))
     bio = db.Column(db.String(512))
     admin = db.Column(db.Boolean, default=False)
+
+    # Relationships
     collections = db.relationship(
-        'Collection', backref='collection_author', lazy='dynamic')
-    posts = db.relationship('Post', backref='author', lazy='dynamic')
-    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+        'Collection', backref='collection_author', cascade='all, delete', lazy='dynamic')
+    posts = db.relationship('Post', backref='author',
+                            cascade='all, delete', lazy='dynamic')
+    comments = db.relationship(
+        'Comment', backref='author', cascade='all, delete', lazy='dynamic')
 
     def __repr__(self) -> str:
         return f"{self.username}"
@@ -60,7 +65,7 @@ class User(db.Model, UserMixin):
             "posts": self.posts,
 
         }
-    
+
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
@@ -78,16 +83,17 @@ class User(db.Model, UserMixin):
 
 class Post(db.Model, UserMixin):
 
+    # Class Native
     id = db.Column(db.Integer, primary_key=True)
     header = db.Column(db.String(128))
     body = db.Column(db.String(2000))
     imageLocation = db.Column(db.String(64), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    collections = db.relationship('Collection', secondary='collection_for_posts', backref=db.backref(
-        'post_list'), lazy='dynamic')
+
+    # Relationships
     comments = db.relationship(
-        'Comment', backref=db.backref('post'), lazy='dynamic')
+        'Comment', backref='post', lazy='dynamic', cascade='all, delete')
 
     def __repr__(self) -> str:
         return f"<Post {self.id} - {self.author}>"
@@ -120,11 +126,15 @@ class Post(db.Model, UserMixin):
 
 class Collection(db.Model):
 
+    # Class Native
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), default="New Collection")
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    posts = db.relationship('Post', secondary='collection_for_posts', backref=db.backref(
-        'collection_list'), lazy='dynamic')
+
+    # Relationships
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'user.id', ondelete='CASCADE'))
+    posts = db.relationship('Post', secondary='collection_for_posts',
+                            backref='collection_list', lazy='dynamic', cascade='all, delete')
 
     def __repr__(self) -> str:
         return f"<Collection {self.id} - {self.collection_author}>"
@@ -152,9 +162,11 @@ class Collection(db.Model):
 
 class CollectionForPosts(db.Model):
 
+    # Relationships
     collection_id = db.Column(db.Integer, db.ForeignKey(
-        'collection.id'), primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), primary_key=True)
+        'collection.id', ondelete='CASCADE'), primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey(
+        'post.id', ondelete='CASCADE'), primary_key=True)
 
     def __repr__(self) -> str:
         return f"<CollectionForPosts {self.collection_id} - {self.post_id}>"
@@ -165,11 +177,16 @@ class CollectionForPosts(db.Model):
 
 class Comment(db.Model):
 
+    # Class Native
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String(2000))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow())
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+    # Relationships
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'user.id', ondelete='CASCADE'))
+    post_id = db.Column(db.Integer, db.ForeignKey(
+        'post.id', ondelete='CASCADE'))
 
     def __repr__(self) -> str:
         return f"<Comment {self.id} - {self.body}>"
@@ -180,9 +197,14 @@ class Comment(db.Model):
 
 class Like(db.Model):
 
+    # Class Native
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+    # Relationships
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'user.id', ondelete='CASCADE'))
+    post_id = db.Column(db.Integer, db.ForeignKey(
+        'post.id', ondelete='CASCADE'))
 
     def __repr__(self) -> str:
         return f"<Like {self.id} - {self.user_id} - {self.post_id}>"

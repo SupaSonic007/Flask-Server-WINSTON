@@ -1,6 +1,6 @@
 # Important
 config.py
-app.db
+*.db
 node_modules
 
 # Byte-compiled / optimized / DLL files
