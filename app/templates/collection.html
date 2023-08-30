@@ -20,7 +20,10 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        await getCollectionData();
+        
+        data = await getCollectionData();
+        renderCollection(data);
+
         const prismImportScript = document.createElement('script');
         prismImportScript.src =
             '{{ url_for("static", filename="dist/lib/prism.js") }}';
@@ -28,7 +31,82 @@
     });
 
     async function getCollectionData() {
-        data = await fetch('/api/collection/');
+        data = await fetch('{{ url_for("api_collections", id=id) }}');
+
+        if (data.status === 404) {
+            return;
+        }
+
+        data = await data.json();
+
+        return data
+    }
+
+    function renderCollection(data) {
+        const collectionContainer = document.getElementById(
+            'collectionContainer'
+        );
+
+        if (!data) {
+            collectionContainer.innerHTML = `
+                <h1 class="text-2xl text-center">No posts found</h1>
+            `;
+
+            return;
+        }
+
+        const posts = data.posts;
+
+        // Render the collection through DOM manipulation
+
+        const collection = document.createElement('div');
+        collection.classList.add('collection');
+
+        const title = document.createElement('h1');
+        title.classList.add('text-center');
+        title.textContent = data.title;
+
+        const postsContainer = document.createElement('div');
+        postsContainer.classList.add('posts-container');
+
+        collection.appendChild(title);
+        collection.appendChild(postsContainer);
+        collection.appendChild(document.createElement('br'));
+
+        for (post of posts) {
+            a = document.createElement('a');
+            a.href = `{{ url_for('winstogram')}}/${post.id}`;
+
+            div = document.createElement('div');
+            div.className = 'outline bg-accent rounded p-5';
+            div.id = post.id;
+
+            header = document.createElement('div');
+            header.className = 'truncate';
+            header.id = 'header';
+            header.innerHTML = `<b>${post.header}</b><br /><i>by ${
+                post.author
+            } ${moment(moment(post.timestamp).format('YYYY-MM-DD HH:mm:ssZ')).fromNow()}</i>`;
+            div.appendChild(header);
+
+            const converter = new showdown.Converter()
+            body = document.createElement('div');
+            body.className = 'px-4 truncate';
+            body.id = 'body';
+            body.innerHTML = converter.makeHtml(post.body.replaceAll('\n', ' ').replaceAll('![', '! [').replaceAll('#', ''));
+            div.appendChild(body);
+
+            a.appendChild(div);
+
+            collection.appendChild(a);
+
+            br = document.createElement('br');
+
+            collection.appendChild(br);
+        }
+
+        collectionContainer.appendChild(collection);
+        
     }
 </script>
 

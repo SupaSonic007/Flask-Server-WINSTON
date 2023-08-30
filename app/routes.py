@@ -408,3 +408,22 @@ def mess_with_winston():
         title='Mess with Winston',
         app=app
     )
+
+@login_required
+@app.route('/collection/<id>')
+def collection(id):
+    collection = Collection.query.get_or_404(id)
+
+    if current_user.id != collection.user_id:
+        return render_template(
+            'errors/404.html',
+            title='Page not found!',
+            app=app
+        ), 404
+    
+    return render_template(
+        'collection.html',
+        title=f'Collection {collection.name}',
+        app=app,
+        id=id,
+    )

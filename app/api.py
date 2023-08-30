@@ -215,24 +215,24 @@ def api_collections(id):
     response = {
         'id': collection.id,
         'user_id': collection.user_id,
-        'posts': {
-            post.id: {
-                'id': post.id,
-                'header': post.header,
-                'body': post.body,
-                'timestamp': post.timestamp,
-                'user_id': post.user_id,
-                'comments': {
-                    comment.id: {
-                        'id': comment.id,
-                        'body': comment.body,
-                        'timestamp': comment.timestamp,
-                        'user_id': comment.user_id,
-                        'post_id': comment.post_id,
-                    } for comment in post.comments.all()
-                },
-            } for post in collection.posts.all()
-        },
+        'title': collection.name,
+        'posts': [{
+            'id': post.id,
+            'header': post.header,
+            'body': post.body,
+            'timestamp': post.timestamp,
+            'user_id': post.user_id,
+            'author': post.author.username,
+            'comments': [{
+                comment.id: {
+                    'id': comment.id,
+                    'body': comment.body,
+                    'timestamp': comment.timestamp,
+                    'user_id': comment.user_id,
+                    'post_id': comment.post_id,
+                }
+            } for comment in post.comments.all()],
+        } for post in collection.posts.all()],
     }
     return response, 200
 
@@ -584,8 +584,10 @@ def delete_database_entry():
             if not user:
                 return jsonify(response="User not found", status='error'), 404
 
-            collection_for_user = Collection.query.filter_by(user_id=entry_id).all()
-            collection_for_posts_for_user = CollectionForPosts.query.filter_by(user_id=entry_id).all()
+            collection_for_user = Collection.query.filter_by(
+                user_id=entry_id).all()
+            collection_for_posts_for_user = CollectionForPosts.query.filter_by(
+                user_id=entry_id).all()
             posts_for_user = Post.query.filter_by(user_id=entry_id).all()
             comments_for_user = Comment.query.filter_by(user_id=entry_id).all()
             likes_for_user = Like.query.filter_by(user_id=entry_id).all()
