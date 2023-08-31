@@ -201,35 +201,33 @@ def logout():
 
 
 @app.route('/admin', methods=["POST", "GET"])
-@login_required
+@admin_required
 def admin():
-    if current_user.email in app.config['ADMINS']:
 
-        sql_form = AdminSQLForm()
+    sql_form = AdminSQLForm()
 
-        if sql_form.validate_on_submit():
-            sql = sql_form.query.data
+    if sql_form.validate_on_submit():
+        sql = sql_form.query.data
 
-            # Execute SQL Statement, must be converted to SQL text to execute
-            results = db.session.execute(text(sql))
-            # commit if changing any values
-            db.session.commit()
+        # Execute SQL Statement, must be converted to SQL text to execute
+        results = db.session.execute(text(sql))
+        # commit if changing any values
+        db.session.commit()
 
-            # Delete does not return a result
-            if 'delete' in sql.lower():
-                flash(f"Executed: {text(sql)}")
-                return redirect('admin')
-            else:
-                results = [tuple(row) for row in results.all()]
-                flash((results))
-                return redirect('admin')
-        return render_template(
-            'admin.html',
-            title=f"Admin Panel",
-            app=app,
-            form=sql_form,
-        )
-    abort(404)
+        # Delete does not return a result
+        if 'delete' in sql.lower():
+            flash(f"Executed: {text(sql)}")
+            return redirect('admin')
+        else:
+            results = [tuple(row) for row in results.all()]
+            flash((results))
+            return redirect('admin')
+    return render_template(
+        'admin.html',
+        title=f"Admin Panel",
+        app=app,
+        form=sql_form,
+    )
 
 
 @app.route('/post/<id>/save', methods=["POST"])
@@ -329,7 +327,7 @@ def stream_feed_processed():
 
 
 @app.route('/admin/control', methods=["GET", "POST"])
-@login_required
+@admin_required
 def controller():
 
     if request.method == "POST":
@@ -338,14 +336,12 @@ def controller():
         return "", 200
 
     form = ControllerForm()
-    if current_user.admin:
-        return render_template(
-            'controller.html',
-            title='Controller',
-            app=app,
-            form=form
-        )
-    abort(404)
+    return render_template(
+        'controller.html',
+        title='Controller',
+        app=app,
+        form=form
+    )
 
 
 @app.route('/posts/saved')
