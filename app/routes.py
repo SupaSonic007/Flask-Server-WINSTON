@@ -200,36 +200,6 @@ def logout():
     return redirect('/')
 
 
-@app.route('/admin', methods=["POST", "GET"])
-@admin_required
-def admin():
-
-    sql_form = AdminSQLForm()
-
-    if sql_form.validate_on_submit():
-        sql = sql_form.query.data
-
-        # Execute SQL Statement, must be converted to SQL text to execute
-        results = db.session.execute(text(sql))
-        # commit if changing any values
-        db.session.commit()
-
-        # Delete does not return a result
-        if 'delete' in sql.lower():
-            flash(f"Executed: {text(sql)}")
-            return redirect('admin')
-        else:
-            results = [tuple(row) for row in results.all()]
-            flash((results))
-            return redirect('admin')
-    return render_template(
-        'admin.html',
-        title=f"Admin Panel",
-        app=app,
-        form=sql_form,
-    )
-
-
 @app.route('/post/<id>/save', methods=["POST"])
 def save_post(id):
 
@@ -326,24 +296,6 @@ def stream_feed_processed():
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-@app.route('/admin/control', methods=["GET", "POST"])
-@admin_required
-def controller():
-
-    if request.method == "POST":
-        data = request.json['data']
-        sendToPi(data)
-        return "", 200
-
-    form = ControllerForm()
-    return render_template(
-        'controller.html',
-        title='Controller',
-        app=app,
-        form=form
-    )
-
-
 @app.route('/posts/saved')
 def saved_posts():
     return render_template(
@@ -418,8 +370,56 @@ def collection(id):
     )
 
 
-@app.route('/test')
+@app.route('/admin', methods=["POST", "GET"])
 @admin_required
+def admin():
+
+    sql_form = AdminSQLForm()
+
+    if sql_form.validate_on_submit():
+        sql = sql_form.query.data
+
+        # Execute SQL Statement, must be converted to SQL text to execute
+        results = db.session.execute(text(sql))
+        # commit if changing any values
+        db.session.commit()
+
+        # Delete does not return a result
+        if 'delete' in sql.lower():
+            flash(f"Executed: {text(sql)}")
+            return redirect('admin')
+        else:
+            results = [tuple(row) for row in results.all()]
+            flash((results))
+            return redirect('admin')
+    return render_template(
+        'admin.html',
+        title=f"Admin Panel",
+        app=app,
+        form=sql_form,
+    )
+
+
+@app.route('/admin/control', methods=["GET", "POST"])
+@admin_required
+def controller():
+
+    if request.method == "POST":
+        data = request.json['data']
+        sendToPi(data)
+        return "", 200
+
+    form = ControllerForm()
+    return render_template(
+        'controller.html',
+        title='Controller',
+        app=app,
+        form=form
+    )
+
+
+@app.route('/test')
+# @admin_required
 def test():
 
     return render_template(

@@ -1,9 +1,7 @@
-{% extends "base.html" %}
-
-{% block content %}
-    <h1 class="text-5xl">Page not found...</h1>
-    <br>
-    <p>Go find W.I.N.S.T.O.N., he misses you</p>
-    <br>
-    <p><a href="{{ url_for('index') }}" class="text-blue-400 underline">Back</a></p>
+{% extends "base.html" %} {% block content %}
+<h1>Page not found...</h1>
+<br />
+<p>Go find W.I.N.S.T.O.N., he misses you</p>
+<br />
+<p><a href="{{ url_for('index') }}" class="text-blue-400 underline">Back</a></p>
 {% endblock %}

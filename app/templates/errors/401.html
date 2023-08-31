@@ -1,0 +1,7 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Unauthorised Access</h1>
+<br />
+<p>You are not authorised to access this page.</p>
+<br />
+<p><a href="{{ url_for('index') }}" class="text-blue-400 underline">Back</a></p>
+{% endblock %}
