@@ -102,16 +102,28 @@
         main.classList.add('flex');
 
         if (user.username == '{{ current_user.username }}') {
+
+            var meta_buttons = document.createElement('div');
+            meta_buttons.className = 'flex w-full flex-wrap gap-5';
+
             var edit_profile = document.createElement('a');
             edit_profile.href = `{{ url_for('edit_profile') }}`;
             edit_profile.className =
-                'border p-1 border-black rounded bg-tertiary px-5 hover:cursor-pointer';
+                'w-full md:w-auto text-center border p-1 border-black rounded bg-tertiary px-5 hover:cursor-pointer inline-block';
             edit_profile.innerText = 'Edit Profile';
+
+            var collections = document.createElement('a');
+            collections.href = `{{ url_for('saved_posts') }}`;
+            collections.className =
+                'w-full md:w-auto text-center border p-1 border-black rounded bg-tertiary px-5 hover:cursor-pointer inline-block';
+            collections.innerText = 'Saved Posts';
 
             var br = document.createElement('br');
 
+            meta_buttons.appendChild(edit_profile);
+            meta_buttons.appendChild(collections);
             document.getElementById('userMeta').appendChild(br);
-            document.getElementById('userMeta').appendChild(edit_profile);
+            document.getElementById('userMeta').appendChild(meta_buttons);
         }
     });
 

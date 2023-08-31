@@ -91,11 +91,10 @@
                 <p
                     class="p-5 text-white {{ 'active' if request.path == url_for('about') else '' }}"
                 >
-                    About
+                    About us
                 </p>
             </a>
-            {% if current_user.is_active %} {% if current_user.email in
-            app.config["ADMINS"] %}
+            {% if current_user.is_active %} {% if current_user.admin %}
             <a href="{{ url_for('admin') }}">
                 <p
                     class="p-5 text-white {{ 'active' if request.path == url_for('admin') else '' }}"
@@ -120,7 +119,6 @@
                         {{ current_user.username }}
                     </p>
                 </a>
-
                 <form
                     method="post"
                     action="{{ url_for('logout') }}"
@@ -139,9 +137,6 @@
         </div>
         <div class="w-full flex absolute">
             <div id="userDropdownContent" class="bg-lightSecondary ml-auto hidden">
-                <a href="{{ url_for('saved_posts') }}">
-                    <p class="py-2 px-5 text-white">Saved Posts</p>
-                </a>
                 <form method="post" action="{{ url_for('logout') }}" novalidate>
                     <button typ="submit" class="py-2 px-5 text-white">
                         Logout
