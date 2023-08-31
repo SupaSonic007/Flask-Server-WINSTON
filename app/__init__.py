@@ -34,7 +34,7 @@ moment = Moment(app)
 
 mail = Mail(app)
 
-from app import api, errors, models, routes, winston
+from app import api, errors, models, routes, winston, wrappers
 
 @login.user_loader
 def load_user(user):

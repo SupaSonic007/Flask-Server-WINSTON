@@ -584,21 +584,6 @@ def delete_database_entry():
             if not user:
                 return jsonify(response="User not found", status='error'), 404
 
-            collection_for_user = Collection.query.filter_by(
-                user_id=entry_id).all()
-            collection_for_posts_for_user = CollectionForPosts.query.filter_by(
-                user_id=entry_id).all()
-            posts_for_user = Post.query.filter_by(user_id=entry_id).all()
-            comments_for_user = Comment.query.filter_by(user_id=entry_id).all()
-            likes_for_user = Like.query.filter_by(user_id=entry_id).all()
-
-            for table in [collection_for_posts_for_user, collection_for_user, posts_for_user, comments_for_user, likes_for_user]:
-                if not table:
-                    continue
-                for entry in table:
-                    db.session.delete(entry)
-                db.session.commit()
-
             db.session.delete(user)
             db.session.commit()
 

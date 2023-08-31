@@ -1,11 +1,11 @@
-import json
 import time
 
-from flask import Response, flash, redirect, render_template, request, url_for
+from flask import Response, flash, redirect, render_template, request, url_for, abort
 from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy import text
 
 from app import app, db
+from app.wrappers import admin_required
 from app.email import send_password_reset_email
 from app.forms import (AdminSQLForm, ControllerForm, EditProfileForm,
                        ForgotPasswordForm, LoginForm, PostForm,
@@ -16,7 +16,7 @@ from app.winston import sendToPi
 
 
 def gen():
-    
+
     while True:
 
         time.sleep(0.02)
@@ -25,12 +25,12 @@ def gen():
             img = open('D:/img.jpg', 'rb').read()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
-        
+
         elif open('D:/img_running.txt', 'r').read() == "0":
             img = open('app/static/images/placeholder.jpg', 'rb').read()
             return (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
-        
+                    b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+
         else:
             yield (b'--frame\r\n')
 
@@ -126,16 +126,12 @@ def stream():
 
 @app.route('/user/<id>')
 def user(id=current_user.id if current_user else 1):
-    
+
     # You can't view a user that doesn't exist
     user = User.query.get(id)
 
     if not user:
-        return render_template(
-            'errors/404.html',
-            title='Page not found!',
-            app=app
-        ), 404
+        abort(404)
 
     return render_template(
         'user.html',
@@ -233,11 +229,7 @@ def admin():
             app=app,
             form=sql_form,
         )
-    return render_template(
-        'errors/404.html',
-        title='Page not found!',
-        app=app
-    ), 404
+    abort(404)
 
 
 @app.route('/post/<id>/save', methods=["POST"])
@@ -263,6 +255,7 @@ def save_post(id):
     return {
         'status': 'success'
     }
+
 
 @app.route('/post/<id>/unsave', methods=["DELETE"])
 def unsave_post(id):
@@ -295,6 +288,7 @@ def unsave_post(id):
 
 
 @app.route('/edit_profile', methods=["GET", "POST"])
+@login_required
 def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
@@ -319,11 +313,13 @@ def stream_feed_left():
         return (open('app/static/images/placeholder.jpg', 'rb').read())
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+
 @app.route('/stream_feed_right')
 def stream_feed_right():
     if open('D:/img_running.txt', 'r').read() == '0':
         return (open('app/static/images/placeholder.jpg', 'rb').read())
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 @app.route('/stream_feed_processed')
 def stream_feed_processed():
@@ -342,18 +338,15 @@ def controller():
         return "", 200
 
     form = ControllerForm()
-    if current_user.email in app.config['ADMINS']:
+    if current_user.admin:
         return render_template(
             'controller.html',
             title='Controller',
             app=app,
             form=form
         )
-    return render_template(
-        'errors/404.html',
-        title='Page not found!',
-        app=app
-    ), 404
+    abort(404)
+
 
 @app.route('/posts/saved')
 def saved_posts():
@@ -362,7 +355,8 @@ def saved_posts():
         title='Saved Posts',
         app=app,
         current_user=current_user
-)
+    )
+
 
 @app.route('/forgot_password', methods=["GET", "POST"])
 def forgot_password():
@@ -386,6 +380,7 @@ def forgot_password():
         form=form
     )
 
+
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     if current_user.is_authenticated:
@@ -401,6 +396,7 @@ def reset_password(token):
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
 
+
 @app.route('/mess_with_winston', methods=["GET", "POST"])
 def mess_with_winston():
     return render_template(
@@ -409,21 +405,29 @@ def mess_with_winston():
         app=app
     )
 
-@login_required
+
 @app.route('/collection/<id>')
+@login_required
 def collection(id):
     collection = Collection.query.get_or_404(id)
 
     if current_user.id != collection.user_id:
-        return render_template(
-            'errors/404.html',
-            title='Page not found!',
-            app=app
-        ), 404
-    
+        abort(404)
+
     return render_template(
         'collection.html',
         title=f'Collection {collection.name}',
         app=app,
         id=id,
+    )
+
+
+@app.route('/test')
+@admin_required
+def test():
+
+    return render_template(
+        'TEST.html',
+        title='Test',
+        app=app
     )
