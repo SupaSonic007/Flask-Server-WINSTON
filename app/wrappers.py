@@ -1,18 +1,18 @@
 from functools import wraps
-from flask_login import current_user, login_required
-from flask import current_app, abort
+from flask_login import current_user
+from flask import abort
 
 
-def admin_required(f):
+def admin_required(function):
     '''
     Check if a user is admin, if not, return 401
     '''
-    @wraps(f)
+    @wraps(function)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
-            abort(404)
+            abort(401)
         if current_user.admin == False:
-            abort(404)
-        return f(*args, **kwargs)
+            abort(401)
+        return function(*args, **kwargs)
 
     return decorated_function
