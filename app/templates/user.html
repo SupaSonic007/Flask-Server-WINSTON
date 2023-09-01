@@ -24,7 +24,7 @@
             <br />
             <p>Joined <span id="time_created"></span></p>
         </div>
-        <p class="w-full m-5"><span id="bio"></span></p>
+        <p class="w-full p-5 break-words"><span id="bio" class="w-full"></span></p>
     </div>
 
     <div
@@ -45,13 +45,13 @@
 
         const user = await getUser('{{ user }}');
 
-        username.innerHTML = user.username;
-        time_created.innerHTML = user.time_created;
+        username.innerText = user.username;
+        time_created.innerText = user.time_created;
         
         if (user.bio != null) {
-            bio.innerHTML = user.bio.replaceAll('\n', '<br />');;
+            bio.innerHTML = user.bio.replaceAll('\n', '<br />');
         } else {
-            bio.innerHTML = 'No bio';
+            bio.innerText = 'No bio';
         }
 
         avatar.src = user.avatar;
@@ -62,7 +62,7 @@
             const posts = document.getElementById('posts');
             const p = document.createElement('p');
             p.className = 'text-center w-full';
-            p.innerHTML = 'No posts';
+            p.innerText = 'No posts';
             posts.appendChild(p);
         }
 
@@ -71,7 +71,7 @@
             a.id = post.id;
             a.href = `{{ url_for('winstogram')}}/${post.id}`;
             a.className =
-                'min-w-[calc(100%-2.5rem)] max-w-[calc(100%-2.5rem)] mx-5 my-3 p-2 outline w-full rounded-md bg-accent';
+                'min-w-[calc(100%-2.5rem)] max-w-[calc(100%-2.5rem)] mx-5 my-3 p-2 outline w-full rounded-md bg-accent overflow-x-hidden hover:bg-tertiary hover:cursor-pointer';
 
             header = document.createElement('span');
             header.id = 'header';

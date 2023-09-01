@@ -19,6 +19,8 @@ class RegistrationForm(FlaskForm):
                            DataRequired(), Length(3, 16, "Username must be between 3 and 16 characters long")])
     email = StringField('Email', validators=[
                         DataRequired(), Email(), Length(5, 128, "Email must be at least 5 characters long")])
+    email2 = StringField('Repeat Email', validators=[
+                        DataRequired(), EqualTo('email'), Length(5, 128, "Email must be at least 5 characters long")])
     password = PasswordField('Password', validators=[
                              DataRequired(), Length(8, 32, "Password must be between 8 and 32 characters long")])
     password2 = PasswordField(
