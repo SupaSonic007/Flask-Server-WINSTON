@@ -421,8 +421,9 @@ def api_check_existence_in_collections(id=None):
     if not Post.query.get(id):
         return jsonify(response="Post not found", status='error'), 404
 
-    if db.session.query(Collection).filter(Collection.posts.any(id=id)).count() > 0:
-        return jsonify(response=True, status='success'), 200
+    for collection in current_user.collections.all():
+        if collection.posts.filter(Post.id == id).first():
+            return jsonify(response=True, status='success'), 200
 
     return jsonify(response=False, status='success'), 200
 

@@ -55,7 +55,9 @@
                 return;
             }
 
-            if (await checkExistenceInCollections()) {
+            const exists = await checkExistenceInCollections();
+            console.log(exists, '{{id}}')
+            if (exists) {
                 save.classList.add('disabled');
                 save.dataset.saved = 'true';
                 save.textContent = 'Saved!';
@@ -65,24 +67,28 @@
                 save.textContent = 'Save';
             }
 
-            if (!save.classList.contains('disabled')) {
-                save.addEventListener('click', async function (event) {
-                    save.dataset.saving = 'true';
-                    save.textContent = 'Saving...';
-                    const time = new Date().getTime();
-                    await fetch("{{ url_for('save_post', id=id) }}", {
-                        method: 'POST',
-                    });
+            if (!exists) {
+                save.addEventListener(
+                    'click',
+                    async function (event) {
+                        save.dataset.saving = 'true';
+                        save.textContent = 'Saving...';
+                        const time = new Date().getTime();
+                        await fetch("{{ url_for('save_post', id=id) }}", {
+                            method: 'POST',
+                        });
 
-                    const time2 = new Date().getTime();
-                    if (time2 - time < 1000) {
-                        await wait(1000 - (time2 - time));
-                    }
+                        const time2 = new Date().getTime();
+                        if (time2 - time < 1000) {
+                            await wait(1000 - (time2 - time));
+                        }
 
-                    save.classList.add('disabled');
-                    save.dataset.saved = 'true';
-                    save.textContent = 'Saved!';
-                }, { once: true});
+                        save.classList.add('disabled');
+                        save.dataset.saved = 'true';
+                        save.textContent = 'Saved!';
+                    },
+                    { once: true }
+                );
             }
             const prismImportScript = document.createElement('script');
             prismImportScript.src =
@@ -95,9 +101,15 @@
             const converter = new showdown.Converter();
             converter.setOption('emoji', true);
             const body = converter.makeHtml(
-                post.body.replace(/(?<=\n)\n/g, '­  \n').replace(/(?<=­ {2})\n(?=---)/g, '\n\n')
+                post.body
+                    .replace(/(?<=\n)\n/g, '­  \n')
+                    .replace(/(?<=­ {2})\n(?=---)/g, '\n\n')
             );
-            console.log(post.body.replace(/(?<=\n)\n/g, '­  \n').replace(/(?<=­ {2})\n(?=---)/g, '\n\n'))
+            console.log(
+                post.body
+                    .replace(/(?<=\n)\n/g, '­  \n')
+                    .replace(/(?<=­ {2})\n(?=---)/g, '\n\n')
+            );
             console.log(body);
 
             // DOM manipulation to render post
@@ -120,7 +132,15 @@
             authorLink.textContent = post.username;
 
             const saveButtonItalics = document.createElement('i');
-            saveButtonItalics.classList.add('text-xl', 'opacity-50');
+            saveButtonItalics.classList.add(
+                'border',
+                'p-1',
+                'border-black',
+                'rounded',
+                'bg-accent',
+                'w-full',
+                'md:w-auto'
+            );
             saveButtonItalics.id = 'saveButton';
 
             const saveButton = document.createElement('button');
@@ -137,12 +157,13 @@
             headerText.appendChild(document.createElement('br'));
             headerText.appendChild(author);
             headerText.appendChild(document.createElement('br'));
-            headerText.appendChild(saveButtonItalics);
             header.appendChild(headerText);
 
             const postContainer = document.getElementById('postContainer');
             postContainer.appendChild(header);
             postContainer.appendChild(bodyDiv);
+            postContainer.appendChild(document.createElement('br'));
+            postContainer.appendChild(saveButtonItalics);
 
             const commentsContainer =
                 document.getElementById('commentsContainer');
