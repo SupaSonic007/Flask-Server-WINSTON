@@ -52,11 +52,11 @@
             await renderPost();
             const save = document.getElementById('save');
             if ('{{ current_user.is_active }}' !== 'True') {
+                document.getElementById('saveButton').remove();
                 return;
             }
 
             const exists = await checkExistenceInCollections();
-            console.log(exists, '{{id}}')
             if (exists) {
                 save.classList.add('disabled');
                 save.dataset.saved = 'true';
@@ -105,12 +105,6 @@
                     .replace(/(?<=\n)\n/g, '­  \n')
                     .replace(/(?<=­ {2})\n(?=---)/g, '\n\n')
             );
-            console.log(
-                post.body
-                    .replace(/(?<=\n)\n/g, '­  \n')
-                    .replace(/(?<=­ {2})\n(?=---)/g, '\n\n')
-            );
-            console.log(body);
 
             // DOM manipulation to render post
             const header = document.createElement('div');
@@ -178,7 +172,6 @@
                     },
                 ];
             }
-            console.log(comments);
             for (comment of comments) {
                 const commentDiv = document.createElement('div');
                 commentDiv.classList.add(
