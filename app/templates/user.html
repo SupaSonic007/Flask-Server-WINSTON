@@ -5,7 +5,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js" integrity="sha512-LhccdVNGe2QMEfI3x4DVV3ckMRe36TfydKss6mJpdHjNFiV07dFpS2xzeZedptKZrwxfICJpez09iNioiSZ3hA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %} {% block content %}
 
-<main
+<content
     class="px-2 sm:px-5 lg:space-x-10 justify-around space-y-10 lg:space-y-0 flex-row flex-wrap md:h-[calc(100vh-9rem)] hidden"
 >
     <div
@@ -34,7 +34,7 @@
         <p class="mt-5 mx-5"><b>Posts</b></p>
         <div id="posts" class="flex flex-wrap lg:w-full"></div>
     </div>
-</main>
+</content>
 
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -97,9 +97,9 @@
             document.getElementById('posts').appendChild(a);
         });
 
-        const main = document.getElementsByTagName('main').item(0);
-        main.classList.remove('hidden');
-        main.classList.add('flex');
+        const content = document.getElementsByTagName('content').item(0);
+        content.classList.remove('hidden');
+        content.classList.add('flex');
 
         if (user.username == '{{ current_user.username }}') {
 

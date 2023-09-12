@@ -1,9 +1,52 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
 
-{% block content %}
+<style>
+    :root {
+        --banner-pos: 0%;
+    }
 
-<h1 class="text-xl">
-    Home Page!
-</h1>
+    #banner {
+        background-size: cover;
+        background-position: center;
+        height: 300px;
+        width: 100%;
+        margin-bottom: 20px;
+        object-fit: cover;
+        object-position: 50% var(--banner-pos);
+        transition: object-position 0.1s ease-out;
+    }
+</style>
+<content>
+    <img
+        id="banner"
+        class="border-gray-700 border-2"
+        src="{{ url_for('static', filename='images/depth4.png') }}"
+    />
+    <br />
+    <h1>Welcome to Winstogram!</h1>
+</content>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('scroll', (e) => {
+            console.log('scroll to bottom');
+            console.log(
+                ((document.documentElement.scrollTop +
+                    document.documentElement.clientHeight) /
+                    document.documentElement.scrollHeight) *
+                    100
+            );
+            document.documentElement.style.setProperty(
+                '--banner-pos',
+                `${
+                    ((document.documentElement.scrollTop +
+                        document.documentElement.clientHeight) /
+                        document.documentElement.scrollHeight) *
+                    100
+                }%`
+            );
+        });
+    });
+</script>
 
 {% endblock %}

@@ -2,7 +2,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js" integrity="sha512-LhccdVNGe2QMEfI3x4DVV3ckMRe36TfydKss6mJpdHjNFiV07dFpS2xzeZedptKZrwxfICJpez09iNioiSZ3hA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %} {% block content %}
 
-<main
+<content
     class="grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4 md:h-[calc(100vh-9rem)] sm:p-5 hidden"
 >
     {% if current_user.is_active %}
@@ -47,7 +47,7 @@
         class="{{ 'col-span-full' if not current_user.is_active else 'sm:col-span-2 md:col-span-2 lg:col-span-3 xl:col-span-4' }} bg-accent overflow-y-auto outline p-5 rounded"
         id="postsContainer"
     ></div>
-</main>
+</content>
 
 <script>
     var posts;
@@ -73,9 +73,9 @@
             }
         });
 
-        main = document.getElementsByTagName('main')[0];
-        main.classList.remove('hidden');
-        main.classList.add('grid');
+        content = document.getElementsByTagName('content')[0];
+        content.classList.remove('hidden');
+        content.classList.add('grid');
 
         while (container.scrollHeight <= container.clientHeight) {
             var newPosts = await loadPreviousPosts(posts[posts.length - 1].id);

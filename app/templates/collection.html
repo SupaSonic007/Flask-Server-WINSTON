@@ -11,12 +11,12 @@
 />
 {% endblock %} {% block content %}
 
-<main>
+<content class="hidden">
     <div
         class="outline w-full lg:w-1/2 mx-auto overflow-y-scroll h-full rounded-md bg-accent p-5"
         id="collectionContainer"
     ></div>
-</main>
+</content>
 
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -28,6 +28,9 @@
         prismImportScript.src =
             '{{ url_for("static", filename="dist/lib/prism.js") }}';
         document.body.appendChild(prismImportScript);
+
+        const content = document.getElementsByTagName('content').item(0);
+        content.classList.remove('hidden');
     });
 
     async function getCollectionData() {

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!-- Using Jinja templating so that you can use variables and code through flask's rendering of template -->
     <head>
         {% if title %}
         <title>{{ title }} - W.I.N.S.T.O.N.</title>
@@ -21,14 +20,60 @@
             rel="stylesheet"
             href="{{ url_for('static',filename='dist/css/output.css') }}"
         />
-        <script src="{{ url_for('static',filename='src/hamburger.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document
+                    .getElementById('hamburger')
+                    .addEventListener('click', () => {
+                        var navbar = document.getElementById('navbar');
+                        if (navbar.classList.contains('active'))
+                            navbar.classList.remove('active');
+                        else navbar.classList.add('active');
+                        console.log('clicked');
+                    });
+            });
+        </script>
         <script src="{{ url_for('static', filename='dist/lib/momentjs.js') }}"></script>
         {% block scripts %} {% endblock %}
+        <style>
+
+            @media (max-width: 768px) {
+                #navbar {
+                    position: relative;
+                    z-index: 99;
+                    transform: translatey(-100%);
+                    transition: transform 0.7s ease-in-out
+                }
+                
+                #navbar.active {
+                    transform: translatey(0%);                
+                }
+
+                #bar {
+                    position: relative;
+                    z-index: 100;
+                }
+
+                main {
+                    position: absolute;
+                    top: 64px;
+                }
+            }
+            
+            .animationStopper {
+                transition: none !important;
+                animation: none !important;
+            }
+
+            main {
+                transition: transform 0.5s ease-in-out;
+            }
+
+            </style>
     </head>
 
-    <!-- Tailwind css setting background colours and flexboxes -->
     <body class="bg-primary">
-        <div class="navbar bg-secondary">
+        <div class="navbar bg-secondary" id="bar">
             <div class="md:hidden h-16">
                 <a href="/" class="inline-block w-auto">
                     <img
@@ -56,7 +101,7 @@
             </div>
         </div>
         <div
-            class="justify-start bg-lightSecondary hidden md:flex w-full md:bg-secondary"
+            class="justify-start bg-lightSecondary md:flex w-full md:bg-secondary"
             id="navbar"
         >
             <a href="/">
@@ -136,7 +181,10 @@
             {% endif %}
         </div>
         <div class="w-full flex absolute">
-            <div id="userDropdownContent" class="bg-lightSecondary ml-auto hidden">
+            <div
+                id="userDropdownContent"
+                class="bg-lightSecondary ml-auto hidden"
+            >
                 <form method="post" action="{{ url_for('logout') }}" novalidate>
                     <button typ="submit" class="py-2 px-5 text-white">
                         Logout
@@ -145,38 +193,39 @@
             </div>
         </div>
 
-        <!-- Inset div to hold content, keeping consistent across pages -->
-        <div class="px-10 py-5 max-h-[calc(100%-64px)]">
-            {% with messages = get_flashed_messages() %} {% if messages %}
-            <ul>
-                {% for message in messages %}
-                <li class="text-3xl">{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %} {% endwith %}
-            <br />
-            {% block content %}{% endblock %}
-        </div>
+        <main class="w-full">
+            <div class="px-10 py-5 max-h-[calc(100%-64px)] w-full">
+                {% with messages = get_flashed_messages() %} {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                    <li class="text-3xl">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %} {% endwith %}
+                <br />
+                {% block content %}{% endblock %}
+            </div>
+        </main>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                
-                const dropdownContent = document.getElementById('userDropdownContent');
+                const dropdownContent = document.getElementById(
+                    'userDropdownContent'
+                );
                 const dropdown = document.getElementById('userDropdown');
 
                 dropdown?.addEventListener('mouseenter', () => {
-                        dropdownContent.classList.add('md:block');
-                    });
+                    dropdownContent.classList.add('md:block');
+                });
                 dropdownContent?.addEventListener('mouseenter', () => {
-                        dropdownContent.classList.add('md:block');
-                    });
+                    dropdownContent.classList.add('md:block');
+                });
                 dropdown?.addEventListener('mouseleave', () => {
-                        dropdownContent
-                            .classList.remove('md:block');
-                    });
+                    dropdownContent.classList.remove('md:block');
+                });
                 dropdownContent?.addEventListener('mouseleave', () => {
-                        dropdownContent.classList.remove('md:block');
-                    });
+                    dropdownContent.classList.remove('md:block');
+                });
             });
         </script>
     </body>
