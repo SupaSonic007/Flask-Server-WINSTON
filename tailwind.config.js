@@ -11,9 +11,6 @@ module.exports = {
         accent: '#ffffff',
         lightSecondary: '#4f4b49',
         tertiary: '#f9f9f9',
-        // primary:'#fffaff',
-        // secondary: '#423E3B',
-        // accent: '#ffffff',
       }
     },
     },

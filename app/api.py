@@ -380,7 +380,10 @@ def api_latest_posts():
         amount = 0
         before = 0
     else:
-        before = Post.query.order_by(Post.id.desc()).first().id
+        if Post.query.count():
+            before = Post.query.order_by(Post.id.desc()).first().id
+        else:
+            return {}, 200
 
     # Get posts from db starting at before (earliest loaded post ID) and going backwards
     posts = Post.query.filter(Post.id <= before).order_by(

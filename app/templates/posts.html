@@ -78,6 +78,7 @@
         content.classList.add('grid');
 
         while (container.scrollHeight <= container.clientHeight) {
+            
             var newPosts = await loadPreviousPosts(posts[posts.length - 1].id);
 
             if (newPosts.length == 0) {
@@ -122,6 +123,9 @@
 
     // add posts to the page fucntion
     function addPosts(posts, container) {
+        if (!posts?.length) {
+            return
+        }
         for (post of posts) {
             a = document.createElement('a');
             a.href = `{{ url_for('winstogram')}}/${post.id}`;
