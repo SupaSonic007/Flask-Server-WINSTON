@@ -419,7 +419,7 @@ def controller():
 
 
 @app.route('/test')
-# @admin_required
+@admin_required
 def test():
 
     return render_template(
