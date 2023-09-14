@@ -44,3 +44,8 @@ button[data-saved="false"] {
     cursor: pointer;
     content: "Save";
 }
+
+ul { 
+  list-style-type: disc; 
+  list-style-position: inside; 
+}
