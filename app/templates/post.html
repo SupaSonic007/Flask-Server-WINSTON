@@ -84,6 +84,7 @@
         converter.setOption('emoji', true);
         const body = converter.makeHtml(
             post.body
+                .replaceAll('\n', '\n\n')
                 .replace(/(?<=\n)\n/g, '­  \n')
                 .replace(/(?<=­ {2})\n(?=---)/g, '\n\n')
         );
