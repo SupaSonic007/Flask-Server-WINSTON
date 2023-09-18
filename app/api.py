@@ -563,7 +563,6 @@ def processed_camera_data():
 def update_database_entry():
     # Get data from request
     data = request.get_json()
-    print(data)
     table_name:str = data.get('table_name', None)
     entry_id:int = data.get('entry_id', None)
     new_data:dict = data.get('new_data', None)
@@ -661,7 +660,6 @@ def update_database_entry():
 def delete_database_entry():
 
     data = request.get_json()
-    print(data)
     table_name = data.get('table_name', None)
     entry_id = data.get('entry_id', None)
 

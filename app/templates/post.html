@@ -252,17 +252,16 @@
                 'h-max'
             );
 
-            // Fit the height of the textarea to the content to avoid a scrollbar
-            bodyInput.style.height = body.clientHeight + 30 + 'px';
-            
             // Keep the height of the textarea the same as the content to avoid a scrollbar
             bodyInput.oninput = function () {
                 bodyInput.style.height = 'auto';
                 bodyInput.style.height = bodyInput.scrollHeight + 10 + 'px';
             };
-
-            // Fill the input with the current body to be edited
+            
+            // Fill the input with the current body to be edited & fix height
             bodyInput.value = post.body;
+            bodyInput.style.height = 'auto';
+            bodyInput.style.height = body.scrollHeight + 30 + 'px';
             body.replaceWith(bodyInput);
 
             // replace header with a textbox
