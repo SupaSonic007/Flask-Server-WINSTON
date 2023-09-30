@@ -5,6 +5,7 @@ from flask_login import current_user, login_required
 
 from app import app, db
 from app.models import Collection, Comment, Post, User, CollectionForPosts, Like
+from app.wrappers import admin_required
 
 
 @app.route('/api', methods=["GET"])
@@ -431,7 +432,7 @@ def api_check_existence_in_collections(id=None):
     return jsonify(response=False, status='success'), 200
 
 
-@login_required
+@admin_required
 @app.route('/api/table', methods=['GET'])
 def api_table_data():
     """
@@ -442,9 +443,6 @@ def api_table_data():
     table_name = request.args.get('table_name', None)
 
     select = request.args.get('select', None)
-
-    if not current_user.admin:
-        return jsonify(response="Unauthorized", status='error'), 401
 
     if not table_name and not select:
         return jsonify(response="Invalid request", status='error'), 400
@@ -563,22 +561,24 @@ def processed_camera_data():
 
     return 200
 
-
 @login_required
-@app.route('/api/database/delete', methods=['DELETE'])
-def delete_database_entry():
+@app.route('/api/database/update', methods=['PUT'])
+def update_database_entry():
+    # Get data from request
+    data = request.get_json()
+    table_name:str = data.get('table_name', None)
+    entry_id:int = data.get('entry_id', None)
+    new_data:dict = data.get('new_data', None)
 
-    if not current_user.admin:
+    # Check if the user is the author of the table entry or an admin
+    tables = {'user': User, 'post': Post, 'comment': Comment, 'collection': Collection}
+    if not (current_user.admin or current_user.id != tables[table_name].query.get(entry_id).user_id):
         return jsonify(response="Unauthorized", status='error'), 401
 
-    data = request.get_json()
-    print(data)
-    table_name = data.get('table_name', None)
-    entry_id = data.get('entry_id', None)
+    if not (table_name and entry_id and new_data):
+        return jsonify(response=f"Invalid request, missing table or entry: {table_name = }, {entry_id = }, {new_data = }", status='error'), 400
 
-    if not (table_name and entry_id):
-        return jsonify(response=f"Invalid request, missing table or entry: {table_name = }, {entry_id = }", status='error'), 400
-
+    # Go through each key in new_data and update the entry with the new value
     match table_name:
 
         case 'user':
@@ -588,46 +588,140 @@ def delete_database_entry():
             if not user:
                 return jsonify(response="User not found", status='error'), 404
 
-            db.session.delete(user)
+            for key, value in new_data.items():
+                match key:
+                    case 'username':
+                        user.username = value
+                    case 'email':
+                        user.email = value
+                    case 'bio':
+                        user.bio = value
+                    case 'admin':
+                        user.admin = value
+
             db.session.commit()
 
-            return jsonify(response="User deleted", status='success'), 200
-
+            return jsonify(response="User updated", status='success'), 200
+        
         case 'post':
 
             post = Post.query.get(entry_id)
 
             if not post:
                 return jsonify(response="Post not found", status='error'), 404
-
-            db.session.delete(post)
+            
+            for key, value in new_data.items():
+                match key:
+                    case 'header':
+                        post.header = value
+                    case 'body':
+                        post.body = value
+                    case 'imageLocation':
+                        post.imageLocation = value
+                    
             db.session.commit()
 
-            return jsonify(response="Post deleted", status='success'), 200
-
+            return jsonify(response="Post updated", status='success'), 200
+        
         case 'comment':
 
             comment = Comment.query.get(entry_id)
 
             if not comment:
                 return jsonify(response="Comment not found", status='error'), 404
+            
+            for key, value in new_data.items():
+                match key:
+                    case 'body':
+                        comment.body = value
 
-            db.session.delete(comment)
             db.session.commit()
 
-            return jsonify(response="Comment deleted", status='success'), 200
-
+            return jsonify(response="Comment updated", status='success'), 200
+        
         case 'collection':
 
             collection = Collection.query.get(entry_id)
 
             if not collection:
                 return jsonify(response="Collection not found", status='error'), 404
+            
+            for key, value in new_data.items():
+                match key:
+                    case 'name':
+                        collection.name = value
 
+            db.session.commit()
+
+            return jsonify(response="Collection updated", status='success'), 200
+        
+        case _:
+            return jsonify(response="Invalid table name", status='error'), 400
+
+@login_required
+@app.route('/api/database/delete', methods=['DELETE'])
+def delete_database_entry():
+
+    data = request.get_json()
+    table_name = data.get('table_name', None)
+    entry_id = data.get('entry_id', None)
+
+    tables = {'user': User, 'post': Post, 'comment': Comment, 'collection': Collection}
+    if not (current_user.admin or current_user.id != tables[table_name].query.get(entry_id).user_id):
+        return jsonify(response="Unauthorized", status='error'), 401
+    
+    if not (table_name and entry_id):
+        return jsonify(response=f"Invalid request, missing table or entry: {table_name = }, {entry_id = }", status='error'), 400
+    
+    match table_name:
+
+        case 'user':
+
+            user = User.query.get(entry_id)
+
+            if not user:
+                return jsonify(response="User not found", status='error'), 404
+            
+            db.session.delete(user)
+            db.session.commit()
+
+            return jsonify(response="User deleted", status='success'), 200
+        
+        case 'post':
+
+            post = Post.query.get(entry_id)
+
+            if not post:
+                return jsonify(response="Post not found", status='error'), 404
+            
+            db.session.delete(post)
+            db.session.commit()
+
+            return jsonify(response="Post deleted", status='success'), 200
+        
+        case 'comment':
+
+            comment = Comment.query.get(entry_id)
+
+            if not comment:
+                return jsonify(response="Comment not found", status='error'), 404
+            
+            db.session.delete(comment)
+            db.session.commit()
+
+            return jsonify(response="Comment deleted", status='success'), 200
+        
+        case 'collection':
+
+            collection = Collection.query.get(entry_id)
+
+            if not collection:
+                return jsonify(response="Collection not found", status='error'), 404
+            
             db.session.delete(collection)
             db.session.commit()
 
             return jsonify(response="Collection deleted", status='success'), 200
-
+        
         case _:
             return jsonify(response="Invalid table name", status='error'), 400

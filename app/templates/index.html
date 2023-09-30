@@ -40,14 +40,9 @@ Phasellus ultricies est nec odio consequat pretium. Suspendisse sagittis risus s
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // On scroll event move the image to show the entire image as the user scrolls down, creating a parallax effect
         document.addEventListener('scroll', (e) => {
-            console.log('scroll to bottom');
-            console.log(
-                ((document.documentElement.scrollTop +
-                    document.documentElement.clientHeight) /
-                    document.documentElement.scrollHeight) *
-                    100
-            );
+            // Update the banner position with the current scroll position as a percentage of the total scroll height
             document.documentElement.style.setProperty(
                 '--banner-pos',
                 `${
