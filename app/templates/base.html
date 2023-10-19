@@ -198,7 +198,7 @@
                 {% with messages = get_flashed_messages() %} {% if messages %}
                 <ul>
                     {% for message in messages %}
-                    <li class="text-3xl">{{ message }}</li>
+                    <p class="text-3xl">{{ message }}</p>
                     {% endfor %}
                 </ul>
                 {% endif %} {% endwith %}
