@@ -3,6 +3,7 @@
 <form action="" method="post" class="" id="controller" novalidate>
     {{ form.hidden_tag() }}
     <p>
+        <!-- This page has just an input and a submit button -->
         {{ form.controllerInput.label }}<br />
         {{ form.controllerInput(cols=10, id_="controlInput", class_="border
         border-black rounded w-full") }} {% for error in
@@ -16,16 +17,24 @@
     </p>
 </form>
 <script>
-    $(document).ready(function () {
-        $("#controller").submit(function (event) {
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById("controller").addEventListener('submit', function (event) {
+            // Don't reload on submit
             event.preventDefault();
-            $.ajax({
-                type: "POST",
-                url: "{{url_for('controller')}}",
-                contentType: "application/json;charset=UTF-8",
-                data: JSON.stringify({ data: $("#controlInput").val() }),
-            });
-            console.log($("#controlInput").val());
+            // Get input data
+            const input = document.getElementById("controlInput").value;
+            // Create post request to send data to server
+            fetch("{{url_for('controller')}}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json;charset=UTF-8"
+                },
+                body: JSON.stringify({ data: input })
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
         });
     });
 </script>

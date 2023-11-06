@@ -1,9 +1,11 @@
+# TEST FILE FOR SERIAL TO ARDUINO
+
 from serial import Serial
 
 serial = Serial('COM8', 9600)
 
-words = not not True
+words = True
 while words:
-    words = input("Yes: ")
+    words = input("INPUT: ")
     serial.write(bytes(words, 'utf-8'))
 serial.close()

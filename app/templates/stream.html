@@ -9,18 +9,25 @@
     <h1 class="text-5xl">Winston Stream</h1>
     <br />
     <br />
+    <!-- Container holding the streams for the eyes -->
+    <!-- Switch commented img for constant image stream -->
+    <!-- Constant image stream will need blender file to be running & D: drive active -->
     <div id="eyeStreamContainer" class="w-full flex justify-between">
         <div
         class="md:max-w-[40rem] xl:h-max w-full inline-block mx-auto outline rounded bg-accent p-5"
         id="eyeStreamLeft"
         >
         <div class="outline rounded bg-accent">
-            <!-- <img src=""> -->
             <img
                 id="leftStream"
                 class="w-full"
                 src="{{ url_for('static', filename='images/4l.png') }}"
             />
+            <!-- <img
+                id="leftStream"
+                class="w-full"
+                src="{{ url_for('stream_feed_left') }}"
+            /> -->
         </div>
     </div>
     <div
@@ -28,12 +35,16 @@
         id="eyeStreamRight"
     >
     <div class="outline rounded bg-accent">
-            <!-- <img src=""> -->
             <img
                 id="rightStream"
                 class="w-full"
                 src="{{ url_for('static', filename='images/4r.png') }}"
                 />
+            <!-- <img
+                id="rightStream"
+                class="w-full"
+                src="{{ url_for('stream_feed_right') }}"
+                /> -->
             </div>
         </div>
     </div>
@@ -44,8 +55,9 @@
     id="processedImage"
     >
     <div class="outline rounded bg-accent">
-        <!-- <img src=""> -->
         <img id="processedStream" class="w-full" src="{{ url_for('static', filename='images/depth4.png') }}" />
+        <!-- <img id="processedStream" class="w-full" src="{{ url_for('stream_feed_processed') }}" /> -->
+
     </div>
 </div>
 </content>

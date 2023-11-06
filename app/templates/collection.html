@@ -1,4 +1,5 @@
 {% extends "base.html" %} {% block scripts %}
+<!-- Import necessary scripts -->
 <script
     src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"
     integrity="sha512-LhccdVNGe2QMEfI3x4DVV3ckMRe36TfydKss6mJpdHjNFiV07dFpS2xzeZedptKZrwxfICJpez09iNioiSZ3hA=="
@@ -12,6 +13,7 @@
 {% endblock %} {% block content %}
 
 <content class="hidden">
+    <!-- Content initially hidden until JS loads content -->
     <div
         class="outline w-full lg:w-1/2 mx-auto overflow-y-scroll h-full rounded-md bg-accent p-5"
         id="collectionContainer"
@@ -21,19 +23,23 @@
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
         
+        // Get and render collection data
         data = await getCollectionData();
         renderCollection(data);
 
+        // Import prism last for syntax highlighting
         const prismImportScript = document.createElement('script');
         prismImportScript.src =
             '{{ url_for("static", filename="dist/lib/prism.js") }}';
         document.body.appendChild(prismImportScript);
 
+        // Show content
         const content = document.getElementsByTagName('content').item(0);
         content.classList.remove('hidden');
     });
 
     async function getCollectionData() {
+        // Get collection data from API
         data = await fetch('{{ url_for("api_collections", id=id) }}');
 
         if (data.status === 404) {
@@ -46,10 +52,12 @@
     }
 
     function renderCollection(data) {
+        // Get the collection container
         const collectionContainer = document.getElementById(
             'collectionContainer'
         );
 
+        // If no data, render 'no posts found'
         if (!data) {
             collectionContainer.innerHTML = `
                 <h1 class="text-2xl text-center">No posts found</h1>
@@ -61,29 +69,34 @@
         const posts = data.posts;
 
         // Render the collection through DOM manipulation
-
         const collection = document.createElement('div');
         collection.classList.add('collection');
 
+        // Render title
         const title = document.createElement('h1');
         title.classList.add('text-center');
         title.textContent = data.title;
 
+        // Create posts container
         const postsContainer = document.createElement('div');
         postsContainer.classList.add('posts-container');
 
+        // Render title and container
         collection.appendChild(title);
         collection.appendChild(postsContainer);
         collection.appendChild(document.createElement('br'));
 
         for (post of posts) {
+            // For each post, create the post with a link to the post
             a = document.createElement('a');
             a.href = `{{ url_for('winstogram')}}/${post.id}`;
 
+            // Create the post div
             div = document.createElement('div');
             div.className = 'outline bg-accent rounded p-5';
             div.id = post.id;
 
+            // Create the header with title, author and timestamp
             header = document.createElement('div');
             header.className = 'truncate';
             header.id = 'header';
@@ -92,22 +105,26 @@
             } ${moment(moment(post.timestamp).format('YYYY-MM-DD HH:mm:ssZ')).fromNow()}</i>`;
             div.appendChild(header);
 
+            // Create the body with the post body and convert it to HTML
             const converter = new showdown.Converter()
             body = document.createElement('div');
             body.className = 'px-4 truncate';
             body.id = 'body';
             body.innerHTML = converter.makeHtml(post.body.replaceAll('\n', ' ').replaceAll('![', '! [').replaceAll('#', ''));
             div.appendChild(body);
-
+            
+            // Add link to post
             a.appendChild(div);
 
             collection.appendChild(a);
 
+            // Add a line break between posts
             br = document.createElement('br');
 
             collection.appendChild(br);
         }
 
+        // Add the collection to the container to render
         collectionContainer.appendChild(collection);
         
     }

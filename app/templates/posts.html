@@ -54,15 +54,18 @@
     document.addEventListener('DOMContentLoaded', async () => {
         const container = document.getElementById('postsContainer');
 
+        // Get the latest posts and add them to the page
         posts = await getLatestPosts();
 
         addPosts(posts, container);
 
+        // Infinite scroll to load new posts when you read the bottom of the page
         container.addEventListener('scroll', async () => {
             if (
                 Math.round(container.scrollTop + container.clientHeight) >=
                 container.scrollHeight
             ) {
+                // Load the previous posts
                 var newPosts = await loadPreviousPosts(
                     posts[posts.length - 1].id
                 );
@@ -72,26 +75,31 @@
                 addPosts(newPosts, container);
             }
         });
-
+        
+        // Unhide the content
         content = document.getElementsByTagName('content')[0];
         content.classList.remove('hidden');
         content.classList.add('grid');
 
+        // Add posts until the container is full if the container is not so full that it is scrollable
         while (container.scrollHeight <= container.clientHeight) {
             
+            // Load previous posts and add them to the page
             var newPosts = await loadPreviousPosts(posts[posts.length - 1].id);
 
+            // If there are no more posts, stop
             if (newPosts.length == 0) {
                 break;
             }
 
+            // Add the new posts to the posts array
             posts.push(...newPosts);
 
             addPosts(newPosts, container);
         }
 
         window.addEventListener('scroll', async () => {
-            // if the user is at the bottom of the page
+            // if the user is at the bottom of the page, load previous posts
             if (
                 window.innerHeight + window.scrollY >=
                 document.body.offsetHeight
@@ -108,18 +116,20 @@
 
         // After 3 seconds, remove the "You must be signed in"
         await wait(3000);
-        // Another random comment {% if not current_user.is_active %}
+        // {% if not current_user.is_active %}
         document.getElementById('signInRequired').remove();
-        // x2 {% endif %}
+        // {% endif %}
     });
 
     async function getLatestPosts() {
+        // Fetch the latest posts
         const response = await fetch("{{ url_for('api_latest_posts') }}");
         const posts = await response.json();
         return posts;
     }
 
     async function loadPreviousPosts(before) {
+        // Load the previous posts
         const response = await fetch(
             `{{ url_for('api_latest_posts') }}?before=${before}`
         );
@@ -129,17 +139,21 @@
 
     // add posts to the page fucntion
     function addPosts(posts, container) {
+        // Add the posts to the page through DOM manipulation
         if (!posts?.length) {
             return
         }
         for (post of posts) {
+            // Create the post item
             a = document.createElement('a');
             a.href = `{{ url_for('winstogram')}}/${post.id}`;
 
+            // Container for the post
             div = document.createElement('div');
             div.className = 'outline bg-accent rounded p-5';
             div.id = post.id;
 
+            // Header container
             header = document.createElement('div');
             header.className = 'truncate';
             header.id = 'header';
@@ -148,6 +162,7 @@
             } ${moment(moment(post.timestamp).format('YYYY-MM-DD HH:mm:ssZ')).fromNow()}</i>`;
             div.appendChild(header);
 
+            // Body md to html conversion
             const converter = new showdown.Converter()
             body = document.createElement('div');
             body.className = 'px-4 truncate';
@@ -155,6 +170,7 @@
             body.innerHTML = converter.makeHtml(post.body.replaceAll('\n', ' ').replaceAll('![', '! [').replaceAll('#', ''));
             div.appendChild(body);
 
+            // Append everything to create the object
             a.appendChild(div);
 
             container.appendChild(a);
@@ -165,6 +181,7 @@
         }
     }
 
+    // Wait function to create timeout after x milliseconds
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 </script>

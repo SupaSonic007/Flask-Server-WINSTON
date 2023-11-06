@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- If the title exists, use it, otherwise use 'W.I.N.S.T.O.N. the Robot Dog!' -->
         {% if title %}
         <title>{{ title }} - W.I.N.S.T.O.N.</title>
         {% else %}
@@ -10,6 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charset="UTF-8" />
         {% block meta %}
+        <!-- If metadata isn't overriden, use this metadata -->
         <meta name="title" content="Winstogram" />
         <meta
             name="description"
@@ -20,11 +22,15 @@
             rel="stylesheet"
             href="{{ url_for('static',filename='dist/css/output.css') }}"
         />
+        <!-- Create hamburger menu script -->
         <script>
+            // When the DOM is loaded
             document.addEventListener('DOMContentLoaded', function () {
+                // When the hamburger button is clicked
                 document
                     .getElementById('hamburger')
                     .addEventListener('click', () => {
+                        // Toggle the active class on the navbar
                         var navbar = document.getElementById('navbar');
                         if (navbar.classList.contains('active'))
                             navbar.classList.remove('active');
@@ -33,10 +39,11 @@
                     });
             });
         </script>
+        <!-- Import momentjs -->
         <script src="{{ url_for('static', filename='dist/lib/momentjs.js') }}"></script>
         {% block scripts %} {% endblock %}
         <style>
-
+            /* Styles for navbar, including animation for navbar */
             @media (max-width: 768px) {
                 #navbar {
                     position: relative;
@@ -74,8 +81,11 @@
 
     <body class="bg-primary">
         <div class="navbar bg-secondary" id="bar">
+            <!-- NAVBAR -->
             <div class="md:hidden h-16">
                 <a href="/" class="inline-block w-auto">
+                    <!-- Home page from logo -->
+                    <!-- NOTE: Logo from https://www.flaticon.com/free-icon/robot-dog_4756845 -->
                     <img
                         class="p-5 max-h-16"
                         src="{{ url_for('static', filename='images/logo.png') }}"
@@ -83,6 +93,7 @@
                     />
                 </a>
                 <div id="hamburger" class="w-auto float-right">
+                    <!-- Hamburger menu -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="w-8 py-4 mx-5 h-full float-right cursor-pointer"
@@ -104,6 +115,7 @@
             class="justify-start bg-lightSecondary md:flex w-full md:bg-secondary"
             id="navbar"
         >
+        <!-- The actual navbar items -->
             <a href="/">
                 <img
                     class="p-5 max-h-16 hidden md:block"
@@ -140,6 +152,7 @@
                 </p>
             </a>
             {% if current_user.is_active %} {% if current_user.admin %}
+            <!-- If the user is active and an admin, show the admin page -->
             <a href="{{ url_for('admin') }}">
                 <p
                     class="p-5 text-white {{ 'active' if request.path == url_for('admin') else '' }}"
@@ -147,15 +160,7 @@
                     Admin
                 </p>
             </a>
-            {% endif %} {% endif %} {% if not current_user.is_active %}
-            <a href="{{ url_for('login') }}" class="ml-auto">
-                <p
-                    class="p-5 text-white md:float-right {{ 'active' if request.path == url_for('login') else '' }}"
-                >
-                    Login
-                </p>
-            </a>
-            {% else %}
+            {% endif %}
             <div id="userDropdown" class="md:ml-auto">
                 <a href="{{ url_for('user', id=current_user.id) }}">
                     <p
@@ -178,9 +183,18 @@
                     </button>
                 </form>
             </div>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="ml-auto">
+                <p
+                    class="p-5 text-white md:float-right {{ 'active' if request.path == url_for('login') else '' }}"
+                >
+                    Login
+                </p>
+            </a>
             {% endif %}
         </div>
         <div class="w-full flex absolute">
+            <!-- User dropdown content for logout button -->
             <div
                 id="userDropdownContent"
                 class="bg-lightSecondary ml-auto hidden"
@@ -193,8 +207,10 @@
             </div>
         </div>
 
+        <!-- Main content with padding to ensure no custom padding will be needed per page -->
         <main class="w-full">
             <div class="px-10 py-5 max-h-[calc(100%-64px)] w-full">
+                <!-- Show flashed messages -->
                 {% with messages = get_flashed_messages() %} {% if messages %}
                 <ul>
                     {% for message in messages %}
@@ -203,11 +219,14 @@
                 </ul>
                 {% endif %} {% endwith %}
                 <br />
+                <!-- Main content -->
                 {% block content %}{% endblock %}
             </div>
         </main>
 
         <script>
+            // For user dropdown content on full screen mode, if hovering over the dropdown content, keep it open
+            // On mouse leave, close it
             document.addEventListener('DOMContentLoaded', () => {
                 const dropdownContent = document.getElementById(
                     'userDropdownContent'

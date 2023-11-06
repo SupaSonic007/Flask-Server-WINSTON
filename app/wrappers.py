@@ -9,6 +9,7 @@ def admin_required(function):
     '''
     @wraps(function)
     def decorated_function(*args, **kwargs):
+        # If the user isn't logged in or isn't an admin, return 401
         if not current_user.is_authenticated:
             abort(401)
         if current_user.admin == False:

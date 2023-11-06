@@ -8,14 +8,17 @@
 
 <style>
 
+    /* Modal Scrollbar Deactivated */
     #modalContent::-webkit-scrollbar {
         display: none;
     }
 
+    /* Overflow-y will create a 'scrollbar' which will be invisible */
     #modalContent {
         overflow-y: auto;
     }
 
+    /* Define background with transition */
     #modalBackground {
         position: absolute;
         background-color: rgba(79, 75, 73, 0);
@@ -25,6 +28,7 @@
         transition: background-color 0.5s ease-in-out;
     }
 
+    /* Define front face of modal with transition */
     #modalFront {
         position: absolute;
         height: 32rem;
@@ -41,15 +45,19 @@
         opacity: 0%;
     }
 
+    /* Define change in background when it becomes active */
     #modalBackground.active {
         background-color: rgba(79, 75, 73, 0.3);
         pointer-events: all;
     }
     
+    /* Define change in front face when it becomes active */
     #modalFront.active {
         top: calc(50% - 20rem);
         opacity: 100%;
     }
+
+    /* Define the style of the modal when the screen is a particular size */
     @media screen and (max-width: 768px) {
         
         #modalFront.active {
@@ -73,8 +81,12 @@
     Activate Modal
 </button>
 
+<!-- Modal background -->
 <div id="modalBackground" onclick="closeModal(event)">
+    <!-- Front facing part of the modal -->
     <div id="modalFront">
+
+        <!-- Header -->
         <div id="modalHeader" class="p-5 w-full">
 
             <h1 class="w-min inline-block">Modal</h1>
@@ -84,8 +96,11 @@
             </button>
         
         </div>
+
+        <!-- Content -->
         <div id="modalContent" class="py-5 px-8 justify-evenly h-auto">
             <div>
+                <!-- Fields -->
                 <label for="new_value"> <b> Value </b> </label>
                 <input
                 type="text"
@@ -97,12 +112,14 @@
             </div>
             <br>
             <div>
+                <!-- Fields -->
                 <label for="textbox"> <b> box o' text </b> </label>
                 <br>
                 <textarea name="textbox" id="textbox" class="border-2 border-black rounded resize-none block w-full" rows="5"></textarea>
             </div>
             <br>
             <div>
+                <!-- Fields -->
                 <input
                 type="submit"
                 name="submit"
@@ -117,11 +134,13 @@
 </div>
 
 <script>
+    // Activate both parts of the modal when toggled
     function toggleModal() {
         document.getElementById('modalBackground').classList.toggle('active');
         document.getElementById('modalFront').classList.toggle('active');
     }
 
+    // On close modal, confirm that it is the modal you're targetting
     function closeModal(e) {
         if (e.target.id == 'modalBackground') {
             document

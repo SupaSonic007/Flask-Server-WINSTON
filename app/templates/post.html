@@ -10,17 +10,22 @@
     rel="stylesheet"
 />
 {% endblock %} {% block content %}
+<!-- Content hidden until loaded -->
 <content class="hidden">
     <div class="w-full">
+        <!-- Container holding post -->
         <div
             class="outline rounded bg-accent p-5 break-normal"
             id="postContainer"
         ></div>
         <br />
+        <!-- Comments for the post -->
         <div class="outline rounded bg-accent p-5 break-normal">
             <h2 class="text-2xl"><b>Comments</b></h2>
             {% if current_user.is_active %}
+            <!-- If the user is active, allow comments to be posted -->
             <br />
+            <!-- Comment Form -->
             <form
                 id="commentForm"
                 action=""
@@ -45,19 +50,25 @@
             </form>
             {% endif %}
             <br />
+            <!-- Container holding all comments -->
             <div class="px-1" id="commentsContainer"></div>
         </div>
     </div>
 </content>
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
+        // On load, render the post
         const post = await renderPost();
 
+        // Get the save element
         const save = document.getElementById('save');
 
+        // If the user isn't logged in, remove the save and edit buttones
         if ('{{ current_user.is_active }}' !== 'True') {
             document.getElementById('save').remove();
             document.getElementById('edit').remove();
+            
+            // Unhide the content
             const content = document.getElementsByTagName('content').item(0);
             content.classList.remove('hidden');
             return;
@@ -79,9 +90,12 @@
     });
 
     async function renderPost() {
+        // Get post by id
         const post = await getPost(parseInt('{{ id }}'));
+        // Render from markdown
         const converter = new showdown.Converter();
         converter.setOption('emoji', true);
+        // Fix newline issues
         const body = converter.makeHtml(
             post.body
                 .replaceAll('\n', '\n\n')
@@ -90,6 +104,13 @@
         );
 
         // DOM manipulation to render post
+
+        /* 
+        ------
+        Header
+        ------
+        */
+        
         const header = document.createElement('div');
         header.id = 'header';
 
@@ -109,6 +130,11 @@
         authorLink.classList.add('underline');
         authorLink.textContent = post.username;
 
+        /*
+        -------
+        Buttons
+        -------
+        */
         const editButton = document.createElement('button');
         editButton.id = 'edit';
         editButton.classList.add(
@@ -137,11 +163,21 @@
             'md:w-auto'
         );
 
+        /*
+        ----
+        Body
+        ----
+        */
         const bodyDiv = document.createElement('div');
         bodyDiv.id = 'body';
         bodyDiv.classList.add('px-4', 'overflow-y-hidden');
         bodyDiv.innerHTML = body;
 
+        /*
+        ---------------
+        Append children
+        ---------------
+        */
         author.appendChild(authorLink);
         headerText.appendChild(headerTextBold);
         headerText.appendChild(document.createElement('br'));
@@ -156,9 +192,15 @@
         postContainer.appendChild(editButton);
         postContainer.appendChild(saveButton);
 
+        /*
+        --------
+        Comments
+        --------
+        */
         const commentsContainer = document.getElementById('commentsContainer');
 
         var comments = post.comments;
+        // If there are no comments, put 1 comment saying No Comments Yet!
         if (comments.length == 0) {
             comments = [
                 {
@@ -168,6 +210,7 @@
                 },
             ];
         }
+        // For each comment, add the comment
         for (comment of comments) {
             const commentDiv = document.createElement('div');
             commentDiv.classList.add(
@@ -178,6 +221,7 @@
                 'mb-5'
             );
 
+            // Each component of the comment initialised
             const commentBody = document.createElement('div');
             const commentHeader = document.createElement('div');
             const commentHeaderNameA = document.createElement('a');
@@ -189,6 +233,7 @@
                 comment.timestamp != null &&
                 comment.body != 'No comments yet!'
             ) {
+                // If the comment is not the 'No comments yet!' comment, render the comment
                 commentHeaderNameA.href = `{{ url_for('user', id='') }}${comment.user_id}`;
                 commentHeaderNameA.classList.add('inline');
 
@@ -198,6 +243,8 @@
                 commentHeaderNameA.appendChild(commentHeaderName);
 
                 commentHeaderTime.classList.add('opacity-50', 'inline');
+
+                // Use moment.js to format the timestamp
                 commentHeaderTime.textContent = ` ${moment(
                     comment.timestamp
                 ).fromNow()}`;
@@ -209,10 +256,10 @@
             } else {
                 commentBody.classList.add('underline');
             }
-
             commentBody.innerHTML = comment.body;
             commentBody.innerHTML = comment.body;
 
+            // Append comment body and header to comment div
             commentDiv.appendChild(commentBody);
 
             commentsContainer.appendChild(commentDiv);
@@ -221,6 +268,7 @@
     }
 
     async function checkExistenceInCollections() {
+        // Check if the post is already saved
         fetched = await fetch(
             '{{ url_for("api_check_existence_in_collections", id=id) }}'
         ).then((res) => res.json());
@@ -228,6 +276,7 @@
     }
 
     async function getPost(id) {
+        // Get post from API
         fetched = await fetch('{{ url_for("api_post", id=id) }}').then((res) =>
             res.json()
         );
@@ -337,6 +386,7 @@
                         'Content-Type': 'application/json',
                     },
                 });
+                // Reload the page
                 window.location.href = '{{ url_for("winstogram") }}';
             };
             deleteButton.textContent = 'Delete';
@@ -409,6 +459,7 @@
         }
     }
 
+    // Create wait() function to wait for a certain amount of time (in ms)
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 </script>
 {% endblock %}

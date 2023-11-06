@@ -8,10 +8,12 @@
 <content
     class="px-2 sm:px-5 lg:space-x-10 justify-around space-y-10 lg:space-y-0 flex-row flex-wrap md:h-[calc(100vh-9rem)] hidden"
 >
+    <!-- User info box -->
     <div
         id="userInfo"
         class="outline w-full lg:w-2/5 flex flex-wrap content-start rounded-md bg-accent"
     >
+        <!-- Includes avatar, user meta and bio -->
         <img
             id="avatar"
             class="m-5 w-[128px] h-[128px] outline rounded-full mx-auto"
@@ -27,6 +29,7 @@
         <p class="w-full p-5 break-words"><span id="bio" class="w-full"></span></p>
     </div>
 
+    <!-- User Posts Container to hold all posts -->
     <div
         id="userPosts"
         class="outline w-full lg:w-1/2 overflow-y-scroll h-full rounded-md bg-accent"
@@ -38,13 +41,16 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
+        // Define variables holding elements
         const avatar = document.getElementById('avatar');
         const username = document.getElementById('username');
         const time_created = document.getElementById('time_created');
         const bio = document.getElementById('bio');
 
+        // Get the user based on the id from the database
         const user = await getUser('{{ user }}');
 
+        // Set username, time created and bio from user data
         username.innerText = user.username;
         time_created.innerText = user.time_created;
         
@@ -54,10 +60,12 @@
             bio.innerText = 'No bio';
         }
 
+        // Define avatar and posts from user data
         avatar.src = user.avatar;
 
         posts = await user.posts;
 
+        // If there are no posts, convey that message
         if (posts.length == 0) {
             const posts = document.getElementById('posts');
             const p = document.createElement('p');
@@ -66,19 +74,23 @@
             posts.appendChild(p);
         }
 
+        // Go from latest to earliest creating each item and adding them in
         posts.reverse().forEach((post) => {
+            // Link to the post
             a = document.createElement('a');
             a.id = post.id;
             a.href = `{{ url_for('winstogram')}}/${post.id}`;
             a.className =
                 'min-w-[calc(100%-2.5rem)] max-w-[calc(100%-2.5rem)] mx-5 my-3 p-2 outline w-full rounded-md bg-accent overflow-x-hidden hover:bg-tertiary hover:cursor-pointer';
-
+            
+            // Header
             header = document.createElement('span');
             header.id = 'header';
             header.className = 'truncate block';
             header.innerHTML = `<b>${post.header}</b>`;
             a.appendChild(header);
 
+            // Author including timestamp
             author = document.createElement('span');
             author.id = 'author';
             author.className = 'truncate block';
@@ -87,6 +99,7 @@
             ).fromNow()}</i>`;
             a.appendChild(author);
 
+            // Markdown to html converted body
             const converter = new showdown.Converter()
             body = document.createElement('span');
             body.id = 'body';
@@ -94,13 +107,16 @@
             body.innerHTML = converter.makeHtml(post.body.replaceAll('\n', ' '));
             a.appendChild(body);
 
+            // Append post to the end of the list
             document.getElementById('posts').appendChild(a);
         });
 
+        // Unhide the content of the page
         const content = document.getElementsByTagName('content').item(0);
         content.classList.remove('hidden');
         content.classList.add('flex');
 
+        // If the user is logged in and on their own page, show the meta buttons (Edit profile & collections)
         if (user.username == '{{ current_user.username }}') {
 
             var meta_buttons = document.createElement('div');
@@ -128,6 +144,7 @@
     });
 
     async function getUser(id) {
+        // Fetch user info from the database
         const response = await fetch(`/api/users/${id}`);
         const user = await response.json();
         return user;

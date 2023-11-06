@@ -1,4 +1,5 @@
 {% extends "base.html" %} {% block scripts %}
+<!-- Import showdown md to html converter -->
 <script
     src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"
     integrity="sha512-LhccdVNGe2QMEfI3x4DVV3ckMRe36TfydKss6mJpdHjNFiV07dFpS2xzeZedptKZrwxfICJpez09iNioiSZ3hA=="
@@ -6,9 +7,11 @@
     referrerpolicy="no-referrer"
 ></script>
 {% endblock %} {% block content %}
+<!-- Hide content until content loaded -->
 <content class="hidden">
     <div>
         <h1 class="text-5xl float-left">Admin Panel</h1>
+        <!-- Link to controller for Winston for full screen-->
         <a
             href="{{ url_for('controller') }}"
             class="mt-3 border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer hidden mx-10 md:block float-left"
@@ -18,6 +21,7 @@
     <br />
     <br />
     <br />
+    <!-- Link to controller for Winston for mobile -->
     <a
         href="{{ url_for('controller') }}"
         class="mt-3 border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer block md:hidden float-left"
@@ -29,10 +33,12 @@
 
     <!-- CREATE A GRID FOR HOLDING EVERYTHING -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
+        <!-- SQL Query Box -->
         <div
             id="sqlQueryContainer"
             class="col-span-1 md:px-10 sm:col-span-2 lg:col-start-1 xl:col-span-1"
         >
+            <!-- SQL Form -->
             <form action="" method="post" class="" novalidate>
                 {{ form.hidden_tag() }}
                 <p>
@@ -50,28 +56,34 @@
                 <br />
             </form>
         </div>
+        <!-- DB Preview holds name of table, number of items inside and inspect button -->
         <table
             class="w-full border-2 border-black grid-cols-3 sm:col-span-2 md:col-start-3 md:col-span-2 lg:col-span-3 xl:col-span-4 bg-accent"
             id="dbPreview"
         ></table>
         <br />
+        <!-- Inspect DB Entry Container holds the inspection for the table in the database -->
         <div id="inspectDBEntryContainer" class="col-span-full"></div>
         <br />
     </div>
 </content>
 <script>
+    // View = Page
     var view = 0;
+    // On first run things will be loaded initially then updated on future runs
     var first_run = true;
+    // Tabledata not specified yet
     var tableData = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
+        // Define variables for DOM
         dbPreview = document.getElementById('dbPreview');
-
         inspectContainer = document.getElementById('inspectDBEntryContainer');
 
         var table_name = null;
         var select = null;
 
+        // Get table name, query and page from url query
         const href = window.location.href;
         if (href.includes('?') && href.includes('table')) {
             var query = window.location.href.split('?')[1];
@@ -88,13 +100,16 @@
                 table_name = query.split('=')[1];
             }
         }
-
+        
+        // Create preview
         await previewDB(select, table_name);
 
+        // Create inspection
         if (table_name) {
             await createInspection(table_name);
         }
 
+        // Show content
         const content = document.getElementsByTagName('content').item(0);
         content.classList.remove('hidden');
     });
@@ -108,34 +123,40 @@
                 select ? select : 'count'
             }`
         );
+        
+        // Response
         count = await count.json();
-
-        console.log(count);
 
         tables = ['user', 'post', 'collection', 'comment'];
 
         preview = document.getElementById('dbPreview');
 
+        // Create the table of tables from the database
         tables.forEach((table) => {
             row = document.createElement('tr');
             row.className = 'border-2 border-black';
-
+            
+            // Tablename
             col1 = document.createElement('td');
             col1.className = 'p-2 border-2 border-black';
             col1.innerText = table;
 
+            // Table entry count
             col2 = document.createElement('td');
             col2.className = 'p-2 border-2 border-black';
             col2.innerText = count[table];
 
+            // Inspect button
             col3 = document.createElement('td');
             col3.className = 'p-2 border-2 border-black';
             col3.innerHTML = `<a href="?table=${table}">Inspect</a>`;
 
+            // Add all to html table
             row.appendChild(col1);
             row.appendChild(col2);
             row.appendChild(col3);
 
+            // Add row to table
             preview.appendChild(row);
         });
     }
@@ -143,10 +164,11 @@
     async function createInspection(table_name) {
         inspectContainer = document.getElementById('inspectDBEntryContainer');
 
+        // Fetch table data
         response = await fetch(
             `{{ url_for('api_table_data') }}?table_name=${table_name}`
         );
-
+        
         tableData = await response.json();
 
         updateInspection(table_name);
@@ -155,8 +177,10 @@
     function updateInspection(table_name) {
         inspectContainer = document.getElementById('inspectDBEntryContainer');
 
+        // Initialise inspect container data
         inspectContainer.innerHTML = '';
 
+        // Create header with tablename
         header = document.createElement('h1');
         header.className = 'text-5xl';
         header.innerHTML =
@@ -164,13 +188,17 @@
 
         inspectContainer.appendChild(header);
 
+        // Create table
         table = document.createElement('table');
         table.className = 'w-full border-2 border-black bg-accent';
 
+        // For each entry (limited to 5 per page [View])
         for (entry of tableData.slice(view, view + 5)) {
+            // Create row
             row = document.createElement('tr');
             row.className = 'border-2 border-black';
             for (key in entry) {
+                // Create column for each key
                 var col = document.createElement('td');
                 col.className =
                     'p-2 border-2 border-black overflow-y-hidden w-full max-w-xl';
@@ -180,10 +208,11 @@
 
                 row.appendChild(col);
 
-                // delete button far right
+                // delete button on the far right
                 col = document.createElement('td');
                 col.className = 'p-2 border-2 border-black overflow-y-hidden';
-
+                
+                // Parse id for delete button
                 const id = parseInt(JSON.stringify(key).replaceAll('"', ''));
 
                 var deleteButton = document.createElement('button');
@@ -204,14 +233,17 @@
             inspectContainer.appendChild(table);
         }
 
+        // Add linebreak
         inspectContainer.appendChild(document.createElement('br'));
-
-        // Pagination
+        
+        // Pagination buttons
+        // Create previous page button - if page is first or last, disable the related button
         prev_page = document.createElement('button');
         prev_page.className =
             'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer disabled:hover:cursor-not-allowed disabled:opacity-50 mr-3';
         prev_page.id = 'prev_page';
         prev_page.innerText = 'Previous Page';
+
         if (view == 0) {
             prev_page.disabled = true;
         } else {
@@ -221,10 +253,10 @@
                 updateInspection(table_name);
             };
         }
-
+        
         inspectContainer.appendChild(prev_page);
 
-        next_page = document.createElement('button');
+        // Create next page button - if page is first or last, disable the related button
         next_page.className =
             'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer disabled:hover:cursor-not-allowed disabled:opacity-50 ml-3';
         next_page.id = 'next_page';
@@ -241,13 +273,14 @@
 
         inspectContainer.appendChild(next_page);
 
+        // Scroll to bottom of page if it isn't the first run
         if (!first_run) window.scrollTo(0, document.body.scrollHeight);
 
         first_run = false;
     }
 
     async function deleteEntry(table_name, id) {
-        console.log(table_name);
+        // Run API request to delete the data
         response = await fetch(
             `{{ url_for('delete_database_entry') }}?table_name=${table_name}&entry_id=${id}`,
             {

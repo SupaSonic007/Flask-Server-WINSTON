@@ -5,6 +5,7 @@
 {% endblock %} {% block content %}
 
 <content class="hidden">
+    <!-- Main content hidden until page data rendered -->
     <h1 class="text-5xl">Collections</h1>
     <br>
     <br>
@@ -13,15 +14,21 @@
 <script>
 
     document.addEventListener('DOMContentLoaded', async () => {
+
         const container = document.getElementById('listOfCollections');
+        // Get all collections
         const collections = await getCollections('{{ current_user.id }}');
+
+        // Add collections to page
         addCollections(collections, container);
 
+        // Unhide the page
         const content = document.getElementsByTagName('content').item(0);
         content.classList.remove('hidden');
     });
 
     async function getCollections(userId) {
+        // Get collections from API
         collections = await fetch(`/api/user/collections/${userId}`)
         
         collections = await collections.json()
@@ -31,19 +38,23 @@
 
     function addCollections(collections, container) {
         for (collection of collections) {
+            // For each collection, create a link to the collection page
             a = document.createElement('a');
             a.href = `{{ url_for('collection', id=id)}}${collection.id}`
             const collectionContainer = document.createElement('div');
             collectionContainer.classList.add('p-5', 'rounded', 'bg-accent', 'outline', 'my-5');
-
+            
+            // Add collection name (If name doesn't exist use 'Untitled Collection')
             const collectionName = document.createElement('h1');
             collectionName.classList.add('text-2xl');
             collectionName.innerText = collection.name || 'Untitled Collection';
-
+            
+            // Add number of posts
             const number_of_posts = document.createElement('p');
             number_of_posts.classList.add('text-xl');
             number_of_posts.innerText = `${collection.number_of_posts} posts`;
 
+            // Add elements to page
             collectionContainer.append(collectionName);
             collectionContainer.append(number_of_posts);
             a.append(collectionContainer);
