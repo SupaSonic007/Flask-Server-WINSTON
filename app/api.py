@@ -663,9 +663,7 @@ def update_database_entry():
     new_data:dict = data.get('new_data', None)
 
     tables = {'user': User, 'post': Post, 'comment': Comment, 'collection': Collection}
-
-    # Check if the user is the author of the table entry or an admin
-    if not (current_user.admin or current_user.id != tables[table_name].query.get(entry_id).user_id):
+    if not (current_user.admin or current_user.id == tables[table_name].query.get(entry_id).user_id):
         return jsonify(response="Unauthorized", status='error'), 401
 
     # Check if the request is valid
@@ -780,9 +778,8 @@ def delete_database_entry():
     entry_id = data.get('entry_id', None)
 
     tables = {'user': User, 'post': Post, 'comment': Comment, 'collection': Collection}
-    
-    # Check if the user is the author of the table entry or an admin
-    if not (current_user.admin or current_user.id != tables[table_name].query.get(entry_id).user_id):
+    # IF you don't own the post, and you aren't an admin error out
+    if not (current_user.admin or current_user.id == tables[table_name].query.get(entry_id).user_id):
         return jsonify(response="Unauthorized", status='error'), 401
     
     # Check if the request is valid
