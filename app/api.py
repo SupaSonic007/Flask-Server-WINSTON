@@ -516,7 +516,7 @@ def api_table_data():
     select = request.args.get('select', None)
 
     # Ensure the table exists and that a select option has been provided
-    if not table_name or not select:
+    if not (table_name or select):
         return jsonify(response="Invalid request", status='error'), 400
 
     # Specifying available options for future expansion

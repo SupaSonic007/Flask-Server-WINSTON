@@ -240,10 +240,10 @@
         // Create previous page button - if page is first or last, disable the related button
         prev_page = document.createElement('button');
         prev_page.className =
-            'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer disabled:hover:cursor-not-allowed disabled:opacity-50 mr-3';
+        'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer disabled:hover:cursor-not-allowed disabled:opacity-50 mr-3';
         prev_page.id = 'prev_page';
         prev_page.innerText = 'Previous Page';
-
+        
         if (view == 0) {
             prev_page.disabled = true;
         } else {
@@ -255,8 +255,9 @@
         }
         
         inspectContainer.appendChild(prev_page);
-
+        
         // Create next page button - if page is first or last, disable the related button
+        next_page = document.createElement('button');
         next_page.className =
             'border p-1 border-black rounded bg-accent px-5 hover:cursor-pointer disabled:hover:cursor-not-allowed disabled:opacity-50 ml-3';
         next_page.id = 'next_page';

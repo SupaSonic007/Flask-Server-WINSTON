@@ -104,7 +104,7 @@
             body = document.createElement('span');
             body.id = 'body';
             body.className = 'truncate block';
-            body.innerHTML = converter.makeHtml(post.body.replaceAll('\n', ' '));
+            body.innerHTML = converter.makeHtml(post.body.replaceAll('\n', ' ').replaceAll('#',''));
             a.appendChild(body);
 
             // Append post to the end of the list
